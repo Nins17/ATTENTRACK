@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,37 +37,53 @@
      
         <!-- partial -->
     
-            <div class="content-wrapper w-100"> 
-             
-                <div class="card-body d-flex justify-content-center align-items-center" >
-                    <div class="bg-white p-4 rounded shadow d-flex flex-column justify-content-center align-items-center gap-3" style="min-width: 500px; min-height: 300px;">
-                      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                        <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
-                      </div>
-                      {% with messages = get_flashed_messages(with_categories=True) %}
-                      {% if messages %}
-                        <div id="flash-messages">
+            <div class="content-wrapper w-100" > 
+              
+              <div class="col-6 m-3 stretch-card mx-auto"> 
+                
+                <div class="card">
+                  
+                  <div class="card-body ">  
+                   
+                    <h4 class="card-title">Log In as Admin</h4>
+                    <p class="card-description mb-1">Please fill the information needed</p> 
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
                         {% for category, message in messages %}
-                          <p class="mb-3 text-center"
-                            style="font-size: 14px; {% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
-                            <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
-                          </p>
+                            <p class="mb-1"
+                            style="display:fix;font-size:10px; width:200px; height:25px;{% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
+                                <b>{% if category == 'error' %}ERROR LOGIN{% else %} {% endif %}</b>: {{ message }}
+                            </p>
                         {% endfor %}
-                        </div>
-                      {% endif %}
-                    {% endwith %}
-                      <a class="btn btn-lg shadow-lng btn-gradient-primary w-75" href="/login_teacher_form">Log in as Teacher</a>
-                      <a class="btn btn-lg btn-gradient-secondary w-75" style="" href="/admin/login_admin_form">Login as Admin</a>
-                    </div>
+                    {% endif %}
+                {% endwith %}
+                    <form action="/admin/login_admin" method="POST" class="forms-sample ">
+                      <div class="form-group">
+                        <label for="admin_id">Admin ID:</label>
+                        <input type="text" class="form-control inner-shadow" id="admin_id" name="admin_id" placeholder="Enter Admin ID" Required>
+                      </div>
+                     <div class="form-group position-relative">
+                        <label for="admin_pass">Admin Password:</label>
+                        <input type="password" class="form-control inner-shadow" id="admin_pass" name="admin_pass" placeholder="Enter Password" Required>
+                         <i class="mdi mdi-eye-off position-absolute"
+                        id="toggleTeacherPass" 
+                        onclick="togglePassword('admin_pass', this)"
+                        style="top: 38px; right: 15px; cursor: pointer; color: #555;"></i>
+                      </div>
+                      <button type="submit" class="btn btn-gradient-dark me-2">Log In</button>
+                    </form>
                   </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
             <!-- content-wrapper ends -->
             <!-- partial:../../partials/_footer.html -->
             <footer class="footer">
-              <div class=" justify-content-center justify-content-sm-between">
-                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. All rights reserved.</span> 
+              <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2023 <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="mdi mdi-heart text-danger"></i></span>
               </div>
             </footer>
             <!-- partial -->
@@ -92,20 +106,11 @@
     <script src="../static/assets/js/settings.js"></script>
     <script src="../static/assets/js/todolist.js"></script>
     <script src="../static/assets/js/jquery.cookie.js"></script>
+    
     <!-- endinject -->
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
+   <script src="../static/assets/js/togglepass.js"></script>
     <!-- End custom js for this page -->
-    <!-- message disappers in 3 sec -->
-    <script>
-      setTimeout(() => {
-        let flashBox = document.getElementById("flash-messages");
-        if (flashBox) {
-          flashBox.style.transition = "opacity 0.5s ease";
-          flashBox.style.opacity = "0";
-          setTimeout(() => flashBox.remove(), 500);
-        }
-      }, 2000);
-    </script>
   </body>
 </html>

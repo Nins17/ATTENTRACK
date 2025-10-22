@@ -1,39 +1,46 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-from flaskext.mysql import MySQL
+from admin import admin,mysql
 import os
+import csv
 import numpy as np
-from datetime import datetime, date
+from datetime import datetime
 import cv2
 import face_recognition
 
 
 app = Flask(__name__)
+app.register_blueprint(admin, url_prefix="/admin")
 app.secret_key = "ams"
 
 # MySQL Config
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Rootpassword@l03e1t3'
 app.config['MYSQL_DATABASE_DB'] = 'ams'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 # Initialize MySQL
-mysql = MySQL()
 mysql.init_app(app)
 
 SAVE_DIR = 'static/known_faces'
 os.makedirs(SAVE_DIR, exist_ok=True)
 
+#for csv file 
+datetoday = datetime.now().strftime("%m_%d_%y") 
+yeartoday = datetime.now().year
+current_schoolyear = yeartoday-1 
+CSV_DIR = 'static/attendance_csv'
+os.makedirs(CSV_DIR, exist_ok=True)
+
+       
 #global functions
 def get_db_cursor():
     conn = mysql.connect()
     cursor = conn.cursor()
     return cursor, conn
-def not_logged():
-    flash('You are not logged in, Session failed!', 'error')
-    return redirect(url_for('index'))
+def false_login():
+    flash("Please Login first",'error')
+    return redirect(url_for('login_teacher_form'))
 
-datetoday = date.today().strftime("%m_%d_%y")
-datetoday2 = date.today().strftime("%d-%B-%Y")
 
 #routes
 #landing
@@ -41,251 +48,197 @@ datetoday2 = date.today().strftime("%d-%B-%Y")
 def index():
     return render_template("index.html")
 
-#teacher
-#<----pages---->
+
+########## TEACHER SIDE ########## 
+
 @app.route('/login_teacher_form', methods=["POST", "GET"])
 def login_teacher_form():
-    return render_template("user/login_teacher.html")
+    return render_template("user/forms/login_teacher.html")
 
 @app.route('/user_home', methods=["POST", "GET"])
 def user_home():
-    if session.get('logged_in')==True:
-        logged_teacher= session.get('logged_teacher')
-        return render_template("user/index.html",logged_teacher=logged_teacher)
+    if session.get('teacher_logged_in')==True:
+        teacherinfo= session.get('logged_teacher')
+        cursor, conn = get_db_cursor()
+        cursor.execute('SELECT * FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
+        class_scheds=cursor.fetchall()
+        print(f"####{teacherinfo}")
+        return render_template("user/teacher_index.html",logged_teacher=teacherinfo, class_scheds=class_scheds)
     else:
-        return not_logged()
- 
+        return false_login()
+    
+@app.route('/login_teacher', methods=["POST","GET"])
+def login_teacher():
+    if request.method == "POST":
+        teacher_id = int(request.form["teacher_id"])
+        teacher_pass = str(request.form["teacher_pass"])
+    
+        
+        cursor, conn = get_db_cursor()
+        cursor.execute(
+            "SELECT * FROM teacher_accounts WHERE teacher_ID=%s AND teacher_password=%s",
+            (teacher_id, teacher_pass)
+        )
+        teacher = cursor.fetchone()
+        print(teacher)
 
-@app.route('/enrollStudentform',methods=["POST", "GET"])
-def enrollStudentform():
-    if session.get('logged_in')==True:
+        if not teacher:
+            flash('No Account Found', 'error')
+            return redirect(url_for('login_teacher_form'))
+
+        # If password is default (same as teacher ID), redirect to update password
+        if teacher[6] == f"{teacher_id}":
+            session["temp_teacher_id"] = teacher[0]
+            session["temp"]= True
+            return redirect(url_for('update_teacher_password_form'))
+
+        # Set session for logged-in teacher
+        session["teacher_logged_in"] = True
+        session["teacher_id"] = teacher[0]
+        session["teacher_pass"] = teacher[6]
+        session["teacher_name"] = teacher[2]
+        session["logged_teacher"] = teacher  # full DB row
+        return redirect('user_home')
+
+    else:
+        return false_login()
+
+@app.route('/update_teacher_password_form')
+def update_teacher_password_form():
+    if session.get('temp')==True:
+        session['teacher_id'] = session.get('temp_teacher_id')
+        return render_template("user/forms/update_teacher_password_form.html")   
+    else:
+        return false_login()
+
+@app.route("/update_teacher_password", methods=['POST'])
+def update_teacher_password():
+    if request.method == "POST":
+        teacher_id = session.get('teacher_id')
+        new_pass = request.form["teacher_id"]
+        pass_confirm = request.form["teacher_pass"]
+            
+        cursor, conn = get_db_cursor()
+
+        if new_pass == pass_confirm:    
+                # Check for at least one uppercase letter
+            has_upper = any(c.isupper() for c in new_pass)
+                # Check for at least one symbol
+            symbols = "!@#$%^&*(),.?\":{}|<>"
+            has_symbol = any(c in symbols for c in new_pass)
+            valid_passlen= len(new_pass)>=8
+            if not has_upper or not has_symbol: 
+                flash("Password must contain at least one uppercase letter  at least one symbol", 'error')
+                return redirect(url_for('update_teacher_password_form', teacher_id=teacher_id))
+            if not valid_passlen:
+                flash("Password too short", 'error')
+                return redirect(url_for('update_teacher_password_form', teacher_id=teacher_id))
+            else:
+                cursor.execute("UPDATE `ams`.`teacher_accounts` SET `teacher_password` = %s WHERE (`teacher_ID` = %s);", (new_pass,teacher_id))
+                conn.commit()
+                cursor.close()
+                flash("Successfully Updated Password, Login to continue",'success')
+                return redirect(url_for('login_teacher_form'))
+        else:
+            flash("Password didn't match",'error')
+            return redirect(url_for('update_teacher_password_form'))   
+
+@app.route('/view_student_list')
+def view_student_list():
+    if session.get('teacher_logged_in')==True:
+        teacher_id=int(session.get('teacher_id'))
+        cursor, conn = get_db_cursor()  
+    
+        query = """
+        SELECT DISTINCT student_id
+        FROM student_schedule_enrollments
+        WHERE teacher_id = %s
+    """
+    cursor.execute(query, (teacher_id,))
+    student_ids = cursor.fetchall()  
+
+    student_details = []
+    for student in student_ids:
+        student_id = student[0]
+        cursor.execute("SELECT * FROM student_info WHERE student_id = %s", (student_id,))
+        info = cursor.fetchone()  # fetchone because student_id is unique
+        if info:
+            student_details.append(info)
+        
+        #for table
+        cursor.close() 
+      
+        return render_template("user/student_list.html", student_lists=student_details,logged_teacher=session.get('logged_teacher'))
+    else:
+        return false_login()
+ 
+@app.route('/attendance_record', methods=["POST", "GET"])
+def attendance_record():
+    if session.get('teacher_logged_in')==True:
         logged_teacher= session.get('logged_teacher')
         cursor, conn = get_db_cursor()
-        cursor.execute('SELECT DISTINCT grade_level FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
-        avail_grade_level = [row[0] for row in cursor.fetchall()]
-        print(avail_grade_level)
-
-        cursor.execute('SELECT DISTINCT section FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
-        avail_section = [row[0] for row in cursor.fetchall()]
-        print(avail_section)
-        cursor.execute('SELECT DISTINCT subject FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
-        avail_subject = [row[0] for row in cursor.fetchall()]
-        print(avail_subject)
-        
-        if avail_grade_level or avail_section or avail_subject :
-            return render_template("user/forms/enroll_student_form.html",avail_grade_level=avail_grade_level,avail_section=avail_section,avail_subject=avail_subject,logged_teacher=logged_teacher)
-        else:
-            pass
+        cursor.execute('SELECT * FROM `attendance_logs` WHERE teacher_id=%s',(session.get('teacher_id')))
+        csv_files=cursor.fetchall()
+        return render_template("user/attendance_record.html",logged_teacher=logged_teacher, csv_files=csv_files)
     else:
-        return not_logged()
+        return false_login()
  
-    
-   
 @app.route('/class_schedules',methods=["POST", "GET"])
 def class_schedules():
-    if session.get('logged_in')==True:
+    if session.get('teacher_logged_in')==True:
         logged_teacher= session.get('logged_teacher')
         cursor, conn = get_db_cursor()
         cursor.execute('SELECT * FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
         class_scheds=cursor.fetchall()
         teacher_name=session.get('teacher_name')
         
+        
         return render_template("user/class_schedules.html",class_scheds=class_scheds,teacher_name=teacher_name, logged_teacher= logged_teacher)
     else:
-        return not_logged()
+        return false_login()
 
 @app.route('/view_students_by_schedule/<int:schedule_id>')
 def view_students_by_schedule(schedule_id):
-    if session.get('logged_in')==True:
+    if session.get('teacher_logged_in')==True:
         teacher_id=int(session.get('teacher_id'))
         cursor, conn = get_db_cursor()
         #for checkboxes
         query = """
-            SELECT student_id, student_first_name, student_middle_name, student_last_name
-            FROM student_info
-            WHERE teacher_id = %s
-            AND student_id NOT IN (
-                SELECT student_id FROM enrollments WHERE schedule_id = %s
-            )
+            SELECT *
+            FROM student_schedule_enrollments
+            WHERE schedule_id=%s
         """
-        cursor.execute(query, (teacher_id, schedule_id))
+        cursor.execute(query, (schedule_id,))
         student_lists = cursor.fetchall()
         
         #for table
-        cursor.execute("SELECT * FROM enrollments")
-        students = cursor.fetchall()
+        cursor.execute("SELECT * FROM class_schedules WHERE schedule_id=%s", (schedule_id,))
+        fetched_sched = cursor.fetchone()
         cursor.close() 
-        print(students)
-        return render_template("user/sched_class_list.html", student_lists=student_lists,students=students, schedule_id=schedule_id)
+     
+        return render_template("user/students_by_schedule.html", student_lists=student_lists, sched_info=fetched_sched)
     else:
-        return not_logged()
-#<----actions---->
-@app.route('/login_teacher', methods=["POST","GET"])
-def login_teacher():
-    if request.method == "POST":
-        teacher_id =int(request.form["teacher_id"])
-        teacher_pass =str(request.form["teacher_pass"])
-        
-        cursor,conn = get_db_cursor()
-        cursor.execute('SELECT * FROM teacher_account WHERE teacher_ID=%s and teacher_password = %s',(teacher_id,teacher_pass))
-        valid_teacher=cursor.fetchone()
-        if valid_teacher:
-            session["teacher_id"]=teacher_id
-            session["teacher_pass"]=teacher_pass
-            session["teacher_name"]=valid_teacher[1]
-            session["logged_in"]=True
-            cursor.execute('SELECT * FROM teacher_account WHERE teacher_ID=%s',(session.get('teacher_id')))
-            logged_teacher=cursor.fetchall()
-            if session.get('logged_in')==True:
-                session["logged_teacher"]=logged_teacher
-                return render_template("user/index.html",logged_teacher=logged_teacher)
-            else:
-                flash('Log In Failed', 'error')
-                return redirect(url_for('login_teacher_form'))
-        else:
-            flash('No Account Found', 'error')
-            return redirect(url_for('login_teacher_form'))
-    else:
-        flash('You are not logged in, Session failed!', 'error')
-        return redirect(url_for('index'))
+        return false_login()
+    
 
-@app.route('/add_schedule',methods=["POST", "GET"])
-def add_schedule():
+@app.route("/take_attendance/<int:schedule_id>/<schedule_name>", methods=["POST", "GET"])
+def take_attendance(schedule_id,schedule_name):
     cursor, conn = get_db_cursor()
-    if request.method == "POST":
-        classGradeLevel = str(request.form["classGradeLevel"])
-        class_section = str(request.form["class_section"])
-        class_subject = str(request.form["class_subject"])
-        class_schedule = str(request.form["class_schedule"])
-        class_start_time = str(request.form["class_start_time"])
-        class_end_time = str(request.form["class_end_time"])
-        number_of_students=0
-        teacher=str(session.get('teacher_name'))
-        teacher_id=int(session.get('teacher_id'))
-            
-        query = """
-            INSERT INTO class_schedules (
-                `grade_level`, 
-                `section`, 
-                `subject`, 
-                `schedule`, 
-                `start_time`, 
-                `end_time`, 
-                `number_of_students`, 
-                `teacher`,
-                `teacher_id`
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        values=(classGradeLevel,class_section,class_subject,class_schedule,class_start_time,class_end_time,number_of_students,teacher,teacher_id)    
-        cursor.execute(query,values)
-        conn.commit()
-        return redirect('/class_schedules')
-
-@app.route('/enroll_student',methods=["POST", "GET"])
-def enroll_student():
-    cursor, conn = get_db_cursor()
-    if request.method == "POST":
-        student_id = request.form['student_id']
-        student_first_name = request.form['student_first_name']
-        student_middle_name = request.form['student_middle_name']
-        student_last_name = request.form['student_last_name']
-        student_suffix = request.form['student_suffix']
-        student_age = request.form['student_age']
-        student_guardian = request.form['student_guardian']
-        guardian_contact = request.form['guardian_contact']
-        teacher_id=int(session.get('teacher_id'))
-        
-            # Ensure the name is safe for filename
-        filename = f"{student_id}.jpg"
-        image_path = os.path.join(SAVE_DIR, filename)  # full path where image will be saved
-
-        # Open webcam
-        cap = cv2.VideoCapture(0)
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            frame = cv2.flip(frame, 2)
-            height, width = frame.shape[:2]
-
-            # Define the center rectangle (ROI) where user should align their face
-            box_width, box_height = 300, 300
-            x1 = width // 2 - box_width // 2
-            y1 = height // 2 - box_height // 2
-            x2 = x1 + box_width
-            y2 = y1 + box_height
-
-            # Draw the rectangle frame
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, "Align face inside box. Press 's' to save.",
-                        (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
-
-            cv2.imshow("Press 's' to Save, 'q' to Quit", frame)
-
-            key = cv2.waitKey(1)
-            if key == ord('s'):
-                cursor.execute('SELECT * FROM `student_info` WHERE student_id = %s AND teacher_id = %s', (student_id, teacher_id))
-                student_exist = cursor.fetchall()
-                
-                if student_exist:
-                    flash('Student Enrolled already', 'error')
-                    return redirect(url_for('enrollStudentform'))
-                else:
-                    cropped_face = frame[y1:y2, x1:x2]
-                    if os.path.exists(image_path):
-                        print(f"Image already exists at: {image_path}")
-                    else:
-                        cv2.imwrite(image_path, cropped_face)
-                        print(f"Image saved at: {image_path}")
-                    
-                    image_path_for_db = image_path.replace("\\", "/") #path to be stored in db
-                    
-                    query = """ 
-                        INSERT INTO `student_info`(
-                            `student_id`, 
-                            `student_image_path`, 
-                            `student_first_name`, 
-                            `student_middle_name`, 
-                            `student_last_name`, 
-                            `student_suffix`, 
-                            `student_age`, 
-                            `student_guardian`, 
-                            `guardian_contact`,
-                            `teacher_id`
-                        ) 
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                        """
-                    values = (student_id, image_path_for_db, student_first_name, student_middle_name, student_last_name, student_suffix, student_age, student_guardian, guardian_contact,teacher_id)
-                    
-                    cursor.execute(query,values)
-            
-                    conn.commit()
-                    cursor.close()
-                    flash('Student Enrolled Successfully', 'success')
-                    return redirect(url_for('enrollStudentform'))
-
-            elif key == ord('q'):
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
-
-        
-        return redirect(url_for('enrollStudentform'))
-
-@app.route("/take_attendance", methods=["POST", "GET"])
-def take_attendance():
-    import os
-    import cv2
-    import numpy as np
-    import face_recognition
-
     known_faces_dir = str(SAVE_DIR)
     known_face_encodings = []
     known_face_names = []
-
+    teacher_id = int(session.get('teacher_id'))
+    
+    #for csv file 
+    csvpath = f'{CSV_DIR}/{schedule_name}_{datetoday}_Attendance.csv'
+    csv_name= f'{schedule_name}_{datetoday}_Attendance.csv'
+    if not os.path.exists(csvpath):
+        with open(csvpath, 'w') as f:
+            f.write("student_id,student_name,time_in\n")
+            cursor.execute("""
+                    INSERT INTO `attendance_logs`(`schedule_id`,`filename`, `csv_path`, `teacher_id`) VALUES (%s,%s,%s,%s)
+                """, (schedule_id,csv_name,csvpath,teacher_id ))
+            conn.commit()
     # Load known faces
     for filename in os.listdir(known_faces_dir):
         if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -296,75 +249,86 @@ def take_attendance():
                 known_face_encodings.append(encodings[0])
                 known_face_names.append(os.path.splitext(filename)[0])
 
-    # Start webcam
+
     video_capture = cv2.VideoCapture(0)
     video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    process_every_n_frames = 3
-    frame_count = 0
-
+  
     while True:
         ret, frame = video_capture.read()
         if not ret:
             break
-
+        
         frame = cv2.flip(frame, 2)
-        name = "Unknown"
 
-        if frame_count % process_every_n_frames == 0:
-            # Resize and convert to RGB
-            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
 
-            # Detect faces
-            face_locations = face_recognition.face_locations(rgb_small_frame, model="hog")
-            face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+        # Detect faces and encodings
+        face_locations = face_recognition.face_locations(rgb_small_frame)
+        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
-            for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-                distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-                best_match_index = np.argmin(distances)
-                match = distances[best_match_index] < 0.45
+        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+            name = "Unknown"
+            color = (0, 0, 255) # red
 
-                if match:
-                    name = known_face_names[best_match_index]
-                    color = (0, 255, 0)
-                else:
-                    name = "Unknown"
-                    color = (0, 0, 255)
+            if True in matches:
+                first_match_index = matches.index(True)
+                name = known_face_names[first_match_index]
+                color = (0, 255, 0)  # green
+                            
+                already_logged = False
+                if os.path.exists(csvpath):
+                    with open(csvpath, 'r', newline='') as f:
+                        reader = csv.reader(f)
+                        next(reader, None)  # skip header
+                        for row in reader:
+                            if str(name) == row[0]:  # read student_id in column 0
+                                already_logged = True
+                                color = (0, 0, 255)  # RED
+                                break
 
-                # Scale back to original size
-                top *= 4
-                right *= 4
-                bottom *= 4
-                left *= 4
+                if not already_logged:
+                    student_id = int(name)
+                    cursor.execute(
+                        'SELECT * FROM `student_info` WHERE student_id = %s AND teacher_id = %s',
+                        (student_id, teacher_id)
+                    )
+                    student_info = cursor.fetchone()
 
-                face_height = bottom - top
-                suggestion = ""
-                if face_height < 60:
-                    suggestion = "Come Closer"
-                elif face_height > 180:
-                    suggestion = "Move Back"
+                    if student_info:
+                        student_name = f"{student_info[2]} {student_info[3]} {student_info[4]}"
+                        time_in = datetime.now().strftime("%H:%M:%S")
 
-                # Draw rectangle and label
-                cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-                cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-                cv2.putText(frame, name, (left + 6, bottom - 6),
-                            cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+                        with open(csvpath, 'a', newline='') as f:
+                            writer = csv.writer(f)
+                            writer.writerow([student_id, student_name, time_in])
+                            
+            # Scale back up face locations
+            top *= 4
+            right *= 4
+            bottom *= 4
+            left *= 4
 
-                if suggestion:
-                    cv2.putText(frame, suggestion, (left, top - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+            # Draw rectangle around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
 
-        frame_count += 1
-        cv2.imshow("Attendance - Press Q to exit", frame)
+            # Label below face
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+            cv2.putText(frame, name, (left + 6, bottom - 6),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
+        # Show the video
+        cv2.imshow("Taking Attendance (press 'q' to close camera)", frame)
+
+        # Quit on 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+      
     video_capture.release()
     cv2.destroyAllWindows()
-    return "Attendance session ended."
-
-
+    return redirect(url_for('user_home'))
 
 
 
@@ -372,77 +336,60 @@ def take_attendance():
 def search_students():
     query = request.args.get("query", "")
     teacher_id = session.get('teacher_id')
-    
+
     cursor, conn = get_db_cursor()
-    sql = """
+
+    
+    sql_students = """
         SELECT student_id, student_first_name, student_middle_name, student_last_name
         FROM student_info
         WHERE teacher_id = %s AND student_id LIKE %s
         ORDER BY student_last_name
     """
-    cursor.execute(sql, (teacher_id, f"%{query}%"))
+    cursor.execute(sql_students, (teacher_id, f"%{query}%"))
     students = cursor.fetchall()
+
+   
+    sql_scheds = """
+        SELECT * 
+        FROM class_schedules
+        WHERE teacher_id = %s
+        ORDER BY start_time
+    """
+    cursor.execute(sql_scheds, (teacher_id,))
+    scheds = cursor.fetchall()
+
     cursor.close()
 
-    # Convert to JSON format
-    student_data = [
-        {
-            "student_id": student[0],
-            "first_name": student[1],
-            "middle_name": student[2],
-            "last_name": student[3]
-        }
-        for student in students
-    ]
+  
+    data = {
+        "students": [
+            {
+                "student_id": s[0],
+                "first_name": s[1],
+                "middle_name": s[2],
+                "last_name": s[3]
+            }
+            for s in students
+        ],
+        "schedules": scheds  # list of lists, same as before
+    }
 
-    return jsonify(student_data)
+    return jsonify(data)
  
- 
-@app.route('/add_student_tosched/<int:schedule_id>', methods=['POST'])
-def add_student_tosched(schedule_id):
-    selected_ids = request.form.getlist('student_ids')  # list of selected student_ids
 
-    cursor, conn = get_db_cursor()
-
-    for student_id in selected_ids:
-        # Check if already enrolled
-        cursor.execute("SELECT * FROM enrollments WHERE student_id = %s AND schedule_id = %s", (student_id, schedule_id))
-        if not cursor.fetchone():
-            # Get student full name from student_info
-            cursor.execute("""
-                SELECT student_first_name, student_middle_name, student_last_name
-                FROM student_info
-                WHERE student_id = %s
-            """, (student_id,))
-            result = cursor.fetchone()
-            if result:
-                first_name, middle_name, last_name = result
-                full_name = f"{first_name} {middle_name} {last_name}".strip()
-                print(full_name)
-                # Insert with full name
-                cursor.execute("""
-                    INSERT INTO enrollments (student_id, schedule_id, student_name)
-                    VALUES (%s, %s, %s)
-                """, (student_id, schedule_id, full_name))
     
-    conn.commit()
-    cursor.close()
-
-    return redirect(url_for('view_students_by_schedule', schedule_id=schedule_id))
-
-
-
-
-#admin
-@app.route('/admin_home', methods=["POST", "GET"])
-def admin_home():
-    return render_template("admin/index.html")
-
 @app.route('/sign_out')
 def sign_out():
     session.clear()
     flash('You have been logged out', 'success')
     return redirect(url_for('index'))
+
+@app.route('/sign_out_admin')
+def sign_out_admin():
+    session.clear()
+    flash('Admin logged out', 'success')
+    return redirect(url_for("index"))
 
 if __name__ == '__main__':
     app.run(debug=True)

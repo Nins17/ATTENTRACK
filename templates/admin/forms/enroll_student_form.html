@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Purple Admin</title>
+    <title>AttenTrack</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
@@ -20,14 +20,16 @@
     <!-- Layout styles --> 
     <link rel="stylesheet" href="../static/assets/css/style.css">
     <!-- End layout styles -->
-    <link rel="shortcut icon" href="../static/assets/images/favicon.png" />
+    <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
+
   </head>
   <body>
+    
     <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="index.html"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/user_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
          
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-stretch">
@@ -37,17 +39,6 @@
 
           <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item nav-profile dropdown">
-                {%for info in logged_teacher%}
-                <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="nav-profile-img">
-                    <img src="" alt="image">
-                    <span class="availability-status online"></span>
-                  </div>
-                  <div class="nav-profile-text">
-                    <p class="mb-1 text-black">Teacher {{info[1]}}</p>
-                  </div>
-                </a>
-                {%endfor%}
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
                 <a class="dropdown-item" href="#">
                   <i class="mdi mdi-account-key me-2 text-success"></i> Profile </a>
@@ -79,7 +70,7 @@
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
             <li class="nav-item">
-              <a class="nav-link" href="/user_home">
+              <a class="nav-link" href="/admin/admin_home">
 
                 <span class="menu-title" style="color: #558B2F;">Home</span>
                 <i class="mdi mdi-home menu-icon " style="color: #558B2F;"></i>
@@ -93,41 +84,58 @@
               </a>
               <div class="collapse" id="icons">
                 <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Attendance Record</a>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.attendance_records') }}">Attendance Records</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Student List</a>
+                    <a class="nav-link" href="{{ url_for('admin.student_list') }}">Student List</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Schedules</a>
+                    <a class="nav-link" href="{{ url_for('admin.class_schedule_list')}}">Schedules</a>
                   </li>
                 </ul>
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="" aria-expanded="false" aria-controls="tables">
-                <span class="menu-title">Attendace</span>
-                <i class="mdi mdi-calendar-check menu-icon"></i>
+              <a class="nav-link" href="{{ url_for('admin.registered_teacher_list')}}" aria-expanded="false" aria-controls="tables">
+                <span class="menu-title">Registered Teachers</span>
+                <i class="mdi mdi-account-check menu-icon"></i>
               </a>
             </li>
-            
-              <li class="nav-item">
-                <a  href="" class="nav-link" aria-expanded="false" aria-controls="tables">
-                  <span class="menu-title">Enroll Student</span>
-                  <i class="mdi mdi-account-plus menu-icon"></i>
-              </li>
-            </a> 
           </ul>
         </nav>
         <!-- partial -->
         <div class="main-panel">
             <div class="content-wrapper">
               <div class="page-header">
-                <h3 class="page-title"> Enroll Student Form </h3>
                 <nav aria-label="breadcrumb">
-                </nav>
+                  <div class="d-flex">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-home"></i>
+                </span>
+              </h3></a>
+              <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-left-bold"></i>
+                </span>
+              </h3>
+            </a>
+              
+              <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-right-bold"></i>
+                </span>
+              </h3>
+            </a>
+            </div>
+                
               </div>
+              <nav aria-label="breadcrumb">
+                <h3 class="page-title"> Enroll Student Form </h3>
+                </nav>
                 <div class="col-6 m-1 stretch-card mx-auto">
                   <div class="card">
                     <div class="card-body">
@@ -143,7 +151,7 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                      <form class="forms-sample" action="/enroll_student" method="POST">
+                      <form class="forms-sample" action="/admin/enroll_student" method="POST">
                         <div class="form-group">
                             <label for="student_id">Student ID: <span class="text-danger"> *</label>
                             <input type="" class="form-control" id="student_id" name="student_id" placeholder="Enter Student ID" required>
@@ -175,6 +183,23 @@
                           <div class="form-group">
                             <label for="exampleInputUsername1">Guardian Contact Number:  <span class="text-danger"> *</label>
                             <input type="" class="form-control" id="guardian_contact" name="guardian_contact" placeholder="Enter Parent/Guardian's Number">
+                          </div>
+                        <div class="form-group">
+                            <label for="current_gradelevel">Current Grade Level: <span class="text-danger">*</span></label>
+                            <select id="current_gradelevel" name="current_gradelevel" required>
+                                <option value="" selected hidden>Select Grade Level ▼</option>
+                                {% for gl in grade_level %}
+                                    <option value="{{ gl }}">{{ gl }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                          <div class="form-group">
+                              <label for="section">Section: <span class="text-danger">*</span></label>
+                              <select id="section" name="section" disabled required>
+                                  <option value="">Select Grade First</option>
+                              </select>
                           </div>
                         <button type="submit" class="btn btn-gradient-primary me-2">Enroll</button>
                         <button class="btn btn-light">Cancel</button>
@@ -215,5 +240,25 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
+
+    <script>
+      document.getElementById('current_gradelevel').onchange = function() {
+          fetch('/admin/getSection_forEnroll', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'current_gradelevel=' + this.value  // ✅ Must match Flask key!
+          })
+          .then(response => response.json())
+          .then(data => {
+              let section = document.getElementById('section');
+              section.disabled = false;
+              section.innerHTML = '<option selected disabled>Select Section</option>';
+              data.forEach(s => {
+                  section.innerHTML += `<option value="${s[0]}">${s[0]}</option>`;
+              });
+          });
+      };
+      </script>
+
   </body>
 </html>

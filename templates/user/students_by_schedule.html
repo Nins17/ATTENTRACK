@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AttenTrack</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="../static/assets/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="../assets/static/vendors/font-awesome/css/font-awesome.min.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="../static/assets/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../static/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles --> 
+    <link rel="stylesheet" href="../static/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
+ 
+    
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="{{url_for('user_home')}}"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-stretch">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+            <span class="mdi mdi-menu"></span>
+          </button>
+
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item d-none d-lg-block full-screen-link">
+              <a class="nav-link" title="Enter Fullscreen">
+                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-logout d-none d-lg-block">
+              <button class="nav-link cursor-pointer" title="Log Out" data-bs-toggle="modal" data-bs-target="#signout">
+                <i class="mdi mdi-power"></i>
+              </button>
+            </li>
+           
+          </ul>
+          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="mdi mdi-menu"></span>
+          </button>
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('user_home')}}">
+
+                <span class="menu-title" >Home</span>
+                <i class="mdi mdi-home menu-icon " ></i>
+              </a>
+            </li>
+            
+            
+                        <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+                <span class="menu-title">Records</span>
+                <i class="mdi mdi-table-large menu-icon"></i>
+              </a>
+              <div class="collapse" id="icons">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('attendance_record')}}">Attendance Record</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('view_student_list')}}">Student List</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('class_schedules')}}">Schedules</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="" aria-expanded="false" aria-controls="tables">
+                <span class="menu-title">Attendace</span>
+                <i class="mdi mdi-calendar-check menu-icon"></i>
+              </a>
+            </li>
+            
+          </ul>
+        </nav>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <div class="d-flex">
+              <a href="/user_home" style="text-decoration:none;"><h3 class="page-title">
+                <span class="page-title-icon bg-gradient-primary text-white me-2">
+                  <i class="mdi mdi-home"></i>
+                </span>
+              </h3></a>
+              <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-left-bold"></i>
+                </span>
+              </h3>
+            </a>
+              
+              <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-right-bold"></i>
+                </span>
+              </h3>
+            </a>
+          </div>
+          
+            <div>
+              
+            </div>
+            </div>
+            <div class="row justify-content-center"> 
+               
+              <div class="col-lg-12 stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Students in this Class Schedule: <b style="color:green;"><u><i>{{sched_info[1]}} {{sched_info[2]}} - {{sched_info[3]}} ({{sched_info[4]}} {{sched_info[5]}} - {{sched_info[6]}})</i></u></b></h4>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <p class="mb-1"
+                            style="display:fix;font-size:10px; width:200px; height:25px;{% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
+                                <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th class="font-weight-bold text-primary"><b>Enrollment ID</b></th>
+                            <th class="font-weight-bold text-primary"><b>Student ID</b></th>
+                            <th class="font-weight-bold text-primary"><b>Student Names</b></th>
+                            <th></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {% for student in student_lists %}
+                          <tr>
+                            <td class="text-secondary">{{ student[0] }}</td>
+                            <td class="text-primary">{{ student[1] }}</td>
+                            <td style="font-size:12px;"><i>{{ student[3] }}</i></td>
+                            
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div> 
+            </div>
+          <!-- content-wrapper ends -->
+
+ 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</di><!--sign out-->
+<div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content text-center rounded-3 shadow">
+      
+      <div class="modal-body p-3">
+        <!-- Icon inside a circle -->
+        <div class="d-flex justify-content-center mb-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center" 
+               style="width: 55px; height: 55px; background-color: rgba(117, 125, 107, 0.51);">
+            <i class="mdi mdi-progress-alert" style="font-size: 28px; color:rgb(88, 15, 15);"></i>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <h6 class="fw-bold text-dark mb-2">Confirm Sign Out</h6>
+        <p class="text-muted small mb-3">Are you sure you want to sign out?</p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-outline-dark btn-sm px-3 py-1" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <a href="{{ url_for('sign_out') }}" 
+             class="btn btn-sm  px-3 py-1 text-white" 
+             style=" background-color: rgba(56, 74, 34, 0.94); border-color:rgb(34, 34, 33);">
+            Yes, Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+</div>     
+                       <!-- MODAL ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            <div class="d-flex flex-column align-items-center">
+              <p>© <span>Copyright</span> <strong style="color: #558B2F;" class="px-1 sitename">AttenTrack</strong> <span>All Rights Reserved</span></p>
+              <div class="credits">
+                Designed by F1 BOUND
+              </div>
+            </div>
+          </footer>
+          
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="../static/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="../static/assets/vendors/chart.js/chart.umd.js"></script>
+    <script src="../static/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../static/assets/js/off-canvas.js"></script>
+    <script src="../static/assets/js/misc.js"></script>
+    <script src="../static/assets/js/settings.js"></script>
+    <script src="../static/assets/js/todolist.js"></script>
+    <script src="../static/assets/js/jquery.cookie.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="../static/assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+     
+    <script>
+function loadStudents(searchValue = "") {
+  fetch(`/search_students?query=${searchValue}`)
+    .then(response => response.json())
+    .then(data => {
+      const studentList = document.getElementById("studentList");
+      studentList.innerHTML = "";
+
+      data.forEach(student => {
+        const studentHTML = `
+          <div class="form-check mb-1 px-2" style="width: 100%; max-width: 450px;">
+            <input class="form-check-input me-2" type="checkbox" name="student_ids" value="${student.student_id}" id="student_${student.student_id}">
+            <label class="form-check-label" for="student_${student.student_id}">
+              <i>${student.student_id}</i>, ${student.last_name} ${student.first_name} ${student.middle_name}
+            </label>
+          </div>
+        `;
+        studentList.insertAdjacentHTML('beforeend', studentHTML);
+      });
+    });
+}
+
+// Load all students on page load
+document.addEventListener("DOMContentLoaded", function () {
+  loadStudents(); // empty query → fetch all students
+});
+
+// Load students when typing in the search box
+document.getElementById("studentSearch").addEventListener("input", function () {
+  loadStudents(this.value);
+});
+</script>
+
+
+  </body>
+</html>

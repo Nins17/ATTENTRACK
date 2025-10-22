@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Purple Admin</title>
+    <title>AttenTrack</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
@@ -20,14 +20,16 @@
     <!-- Layout styles --> 
     <link rel="stylesheet" href="../static/assets/css/style.css">
     <!-- End layout styles -->
-    <link rel="shortcut icon" href="../static/assets/images/favicon.png" />
+    <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
+ 
+    
   </head>
   <body>
-    <div class="container-scroller">9876
+    <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="index.html"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/admin/admin_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
 
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-stretch">
@@ -40,11 +42,11 @@
               {%for info in logged_teacher%}
               <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="nav-profile-img">
-                  <img src="" alt="image">
+                  <img src="{{info[1]}}" alt="image">
                   <span class="availability-status online"></span>
                 </div>
                 <div class="nav-profile-text">
-                  <p class="mb-1 text-black">Teacher {{info[1]}}</p>
+                  <p class="mb-1 text-black">Teacher {{info[2]}}</p>
                 </div>
               </a>
               {%endfor%}
@@ -57,14 +59,14 @@
               </div>
             </li>
             <li class="nav-item d-none d-lg-block full-screen-link">
-              <a class="nav-link">
+              <a class="nav-link" title="Enter Fullscreen">
                 <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
               </a>
             </li>
             <li class="nav-item nav-logout d-none d-lg-block">
-              <a class="nav-link" href="/">
+              <button class="nav-link cursor-pointer" title="Log Out" data-bs-toggle="modal" data-bs-target="#signout">
                 <i class="mdi mdi-power"></i>
-              </a>
+              </button>
             </li>
            
           </ul>
@@ -79,10 +81,10 @@
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
             <li class="nav-item">
-              <a class="nav-link" href="/user_home">
+              <a class="nav-link" href="/admin/admin_home">
 
-                <span class="menu-title" style="color: #558B2F;">Home</span>
-                <i class="mdi mdi-home menu-icon " style="color: #558B2F;"></i>
+                <span class="menu-title" >Home</span>
+                <i class="mdi mdi-home menu-icon " ></i>
               </a>
             </li>
             
@@ -93,29 +95,23 @@
               </a>
               <div class="collapse" id="icons">
                 <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Attendance Record</a>
+                     <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.attendance_records') }}">Attendance Records</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Student List</a>
+                    <a class="nav-link" href="{{ url_for('admin.student_list') }}">Student List</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="pages/icons/font-awesome.html">Schedules</a>
+                    <a class="nav-link" href="{{ url_for('admin.class_schedule_list')}}">Schedules</a>
                   </li>
                 </ul>
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="" aria-expanded="false" aria-controls="tables">
-                <span class="menu-title">Attendace</span>
-                <i class="mdi mdi-calendar-check menu-icon"></i>
+              <a class="nav-link" href="{{ url_for('admin.registered_teacher_list')}}" aria-expanded="false" aria-controls="tables">
+                <span class="menu-title">Registered Teachers</span>
+                <i class="mdi mdi-account-check menu-icon"></i>
               </a>
-            </li>
-            <li class="nav-item">
-              <a  href="" class="nav-link" aria-expanded="false" aria-controls="tables">
-                  <span class="menu-title">Enroll Student</span>
-                  <i class="mdi mdi-account-plus menu-icon"></i>
-              </a> 
             </li>
             
           </ul>
@@ -124,57 +120,88 @@
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="page-header">
-              <a href="" style="text-decoration:none;"><h3 class="page-title">
-                <span class="page-title-icon bg-gradient-primary text-white me-2">
+             <div class="d-flex">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
                 </span>
               </h3></a>
-            
+              <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-left-bold"></i>
+                </span>
+              </h3>
+            </a>
+              
+              <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-right-bold"></i>
+                </span>
+              </h3>
+            </a>
             </div>
-            <div class="row">
-              <div class="col-md-4 stretch-card grid-margin">
-                <div class="card  bg-gradient-primary card-img-holder text-white">
-                  <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                  <a href="/take_attendance" class="stretched-link"></a>
-                  <div class="card-body">
-                    <h3 class="font-weight-normal mb-3">
-                      TAKE <i class="mdi mdi-calendar-check mdi-24px float-end"></i>
-                    </h3>
-                    <h2 class="mb-5">ATTENDANCE</h2>
-                  </div>
-                </div>
-              </div>
-            
-              <div class="col-md-4 stretch-card grid-margin">
-                <div class="card green-gradient-1 card-img-holder text-white">
-                  <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                  <a  href="/enrollStudentform" class="stretched-link text-white text-decoration-none">
-                  <div class="card-body">
-                    <h4 class="font-weight-normal mb-3">
-                      ADD <i class="mdi mdi-account-plus mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">ENROLL STUDENT</h2>
-                  </div>
-                </a>
-                </div>
-              </div>
-            
-              <div class="col-md-4 stretch-card grid-margin">
-                <div class="card bg-gradient-primary card-img-holder text-white">
-                  <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                  <a href="/class_schedules" class="stretched-link"></a>
-                  <div class="card-body">
-                    <h4 class="font-weight-normal mb-3">
-                      VIEW <i class="mdi mdi-calendar-today mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">CLASS SCHEDULE</h2>
-                  </div>
-                </div>
-              </div>
+              
             </div>
-            
-          </div>
+            <div class="row"> 
+              <div class="col-lg-12 grid-margin stretch-card m-3">
+                  <div class="card-body bg-white py-3 px-5 m-3 rounded-3">
+                    <h4 class="card-title">Select Student to add to Schedule:<b style="color:green;"><u><i>{{sched_info[1]}} {{sched_info[2]}} - {{sched_info[3]}} ({{sched_info[4]}} {{sched_info[5]}} - {{sched_info[6]}})</i></u></b></h4>
+                 
+                     
+                        <form action="{{ url_for('admin.add_student_to_sched',sched_id=sched_info[0])}}" method="POST">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr class="text-center">
+                                <th>Select</th>
+                                <th>Student ID</th>
+                                <th>Full Name</th>
+                                <th>Grade Level</th>
+                                <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                {% for student in students %}
+                                <tr>
+                                <td class="text-center">
+                                    <input  style="width: 20px; height: 20px; cursor: pointer;" type="checkbox" name="selected_students" value="{{ student[0] }}">
+                                </td>
+                                <td>{{ student[0] }}</td>
+                                <td>{{ student[2] }} {{ student[3] }} {{ student[4] }}</td>
+                                <td>{{ student[9] }}</td>
+                                <td>{{ student[10] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            </table>
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-sm btn-gradient-primary px-4">Add Selected Students</button>
+                        </div>
+                        </form>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+    
+        
+
           <!-- content-wrapper ends -->
+
+          <!--sign out-->
+<div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content text-center rounded-3 shadow">
+     
+    </div>
+  </div>
+</div>
+                       <!-- MODAL ends -->
           <!-- partial:partials/_footer.html -->
           <footer class="footer">
             <div class="d-flex flex-column align-items-center">

@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Purple Admin</title>
+    <title>AttenTrack</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
@@ -20,14 +20,14 @@
     <!-- Layout styles --> 
     <link rel="stylesheet" href="../static/assets/css/style.css">
     <!-- End layout styles -->
-    <link rel="shortcut icon" href="../static/assets/images/favicon.png" />
+    <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
   </head>
   <body>
     <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="index.html"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
          
         </div>
       </nav>
@@ -38,7 +38,9 @@
         <!-- partial -->
     
             <div class="content-wrapper w-100"> 
-              
+               <a href="javascript:history.back()" class="me-3 ms-3">
+                  <i class="mdi mdi-arrow-left" style="font-size: 24px; color: black;"></i>
+              </a>
               <div class="col-6 m-3 stretch-card mx-auto"> 
                 
                 <div class="card">
@@ -57,14 +59,18 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                    <form action="/login_teacher" method="POST" class="forms-sample ">
+                    <form action="{{ url_for('login_teacher') }}" method="POST" class="forms-sample ">
                       <div class="form-group">
                         <label for="teacher_id">Teacher ID:</label>
-                        <input type="text" class="form-control" id="teacher_id" name="teacher_id" placeholder="Enter Teacher ID">
+                        <input type="text" class="form-control inner-shadow" id="teacher_id" name="teacher_id" placeholder="Enter Teacher ID">
                       </div>
-                      <div class="form-group">
+                      <div class="form-group position-relative">
                         <label for="teacher_pass">Password:</label>
-                        <input type="password" class="form-control" id="teacher_pass" name="teacher_pass" placeholder="Enter Password">
+                        <input type="password" class="form-control inner-shadow" id="teacher_pass" name="teacher_pass" placeholder="Enter Password">
+                        <i class="mdi mdi-eye-off position-absolute"
+                        id="toggleTeacherPass" 
+                        onclick="togglePassword('teacher_pass', this)"
+                        style="top: 38px; right: 15px; cursor: pointer; color: #555;"></i>
                       </div>
                       <button type="submit" class="btn btn-gradient-primary me-2">Log In</button>
                     </form>
@@ -105,6 +111,7 @@
     <!-- endinject -->
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
+    <script src="../static/assets/js/togglepass.js"></script>
     <!-- End custom js for this page -->
   </body>
 </html>

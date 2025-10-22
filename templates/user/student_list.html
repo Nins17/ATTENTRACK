@@ -82,7 +82,8 @@
               </a>
             </li>
             
-                      <li class="nav-item">
+            
+            <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
                 <span class="menu-title">Records</span>
                 <i class="mdi mdi-table-large menu-icon"></i>
@@ -107,7 +108,6 @@
                 <i class="mdi mdi-calendar-check menu-icon"></i>
               </a>
             </li>
-            
             
             
           </ul>
@@ -138,49 +138,38 @@
               </h3>
             </a>
           </div>
-              
-              
+          
+            
             </div>
             <div class="row"> 
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Class Schedules</h4>
+                    <h4 class="card-title">Students in this Class</h4>
                     <div class="table-responsive">
                       <table class="table table-striped">
                         <thead >
                         <tr>
-                          <th class="font-weight-bold text-primary"><b> List of Students</b> </th>
-                          <th class="font-weight-bold text-primary"><b>Class ID</b></th>
-                          <th class="font-weight-bold text-primary"> <b>Grade level</b></th>
-                          <th class="font-weight-bold text-primary"><b> Section</b></th>
-                          <th class="font-weight-bold text-primary"><b> Subject </b></th>
-                          <th class="font-weight-bold text-primary"><b> Schedule </b></th>
-                          <th class="font-weight-bold text-primary"><b> Start Time</b> </th>
-                          <th class="font-weight-bold text-primary"><b> End Time </b></th>
-                          <th class="font-weight-bold text-primary"><b> Number of Students </b></th>
-                          <th class="font-weight-bold text-primary"><b> Teacher In-Charge</b> </th>
-                        
+                          <th class="font-weight-bold text-primary"><b>Student ID</b></th>
+                          <th class="font-weight-bold text-primary"><b></b></th>
+                          <th class="font-weight-bold text-primary"><b>Student Names</b></th>
+                          <th class="font-weight-bold text-primary"><b>grade_level/Section</b></th>
+                          <th class="font-weight-bold text-primary"><b>age</b></th>
+                          <th class="font-weight-bold text-primary"><b>Guardian</b></th>
+                          <th class="font-weight-bold text-primary"><b>Guardian Contact</b></th>
+        
                         </tr>
                       </thead>
                       <tbody>
-                        {% for scheds in class_scheds %}
+                        {% for student in  student_lists %}
                         <tr>
-                          <td style="font-size:15px;"><a href="{{ url_for('view_students_by_schedule', schedule_id=scheds[0]) }}" style="text-decoration: none; color: inherit;">
-                                                      <button type="button" class="d-inline-flex align-items-center bg-gradient-primary text-white px-2 py-2  rounded border-0 ">
-                                                        View
-                                                      </button>
-                                                      </a>
-                          </td>
-                          <td  class="text-secondary"> 000{{scheds[0]}}</td>
-                          <td style="font-size:12px;"> <i>{{scheds[1]}} </i> </td>
-                          <td style="font-size:12px;"> <i>{{scheds[2]}}</i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[3]}}</i></td>
-                          <td style="font-size:12px;"> <i>{{scheds[4]}} </i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[5]}}</i> </td>
-                          <td style="font-size:12px;"> <i>{{scheds[6]}}</i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[7]}}</i></td>
-                          <td style="font-size:12px;"> <i>{{scheds[8]}} </i></td>
+                          <td  class="text-secondary"> {{student[0]}}</td>
+                          <td class="text-secondary"><img src="{{ student[1] }}" alt="image" width="30"></td>
+                          <td style="font-size:12px;"> <i>{{ student[4] }}, {{ student[2] }} {{ student[3] }} {{student[5]}}</i> </td>
+                          <td  class="text-primary"> {{student[9]}} - {{student[10]}}</td>
+                          <td  class="text-primary"> {{student[6]}}</td>
+                          <td  class="text-primary"> {{student[7]}} </td>
+                          <td  class="text-primary"> {{student[8]}}</td>
                         </tr>
                        {% endfor %}
                       </tbody>
@@ -194,85 +183,7 @@
           </div>
           <!-- content-wrapper ends -->
 
-
-                <!-- MODAL -->
-              <!-- Modal -->
-<div class="modal fade" id="AdSchedModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content bg-white">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Add Class Schedule</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="content-wrapper">         
-          <div class="col-12 col-md-10 col-lg-8 mx-auto">
-            <div class="card mx-auto" style="width:500px;">
-              <div class="card-body" >
-                <h4 class="card-title fw-bold">SCHEDULE INFORMATION</h4>
-                <p class="card-description " style="font-size:10px;">*Please fill the information needed</p>
-                <form action="/add_schedule" method="POST" class="forms-sample text-primary ">
-                  <div class="form-group mb-3">
-                    <label class="text-primary" for="classGradeLevel">
-                      Grade Level <span class="text-danger"> * </span>
-                    </label>
-                    <select class="form-select " id="classGradeLevel" name="classGradeLevel" style="font-size: 0.85rem; padding: 0.25rem 0.5rem; width:180px; height: auto;" Required>
-                      <option value="" disabled selected>Select Grade Level</option>
-                      <option value="Kindergarten">Kindergarten</option>
-                      <option value="Grade 1">Grade 1</option>
-                      <option value="Grade 2">Grade 2</option>
-                      <option value="Grade 3">Grade 3</option>
-                      <option value="Grade 4">Grade 4</option>
-                      <option value="Grade 5">Grade 5</option>
-                      <option value="Grade 6">Grade 6</option>
-                      <option value="Grade 7">Grade 7</option>
-                      <option value="Grade 8">Grade 8</option>
-                      <option value="Grade 9">Grade 9</option>
-                      <option value="Grade 10">Grade 10</option>
-                      <option value="Grade 11">Grade 11</option>
-                      <option value="Grade 12">Grade 12</option>
-                    </select>
-                  </div>
-                  
-                  <div class="form-group mb-3 text-primary" >
-                    <label for="class_section">Class Section</label>
-                    <input type="text" class="form-control rounded" id="class_section" name="class_section" placeholder="Enter Section Name">
-                  </div>
-                  <div class="form-group mb-3">
-                    <label for="class_subject">Subject</label>
-                    <input type="text" class="form-control rounded" id="class_subject" name="class_subject" placeholder="Enter Subject">
-                  </div>
-                  <div class="form-group mb-3">
-                    <label class="text-primary" for="class_schedule">
-                      Schedule <span class="text-danger"> * </span>
-                    </label>
-                    <select class="form-select" id="class_schedule" name="class_schedule" style="font-size: 0.85rem; padding: 0.25rem 0.5rem; width:180px; height: auto;" Required>
-                      <option value="" disabled selected>Select Schedule Day</option>
-                      <option value="Monday">Monday</option>
-                      <option value="Tuesday">Tuesday</option>
-                      <option value="Wednesday">Wednesday</option>
-                      <option value="Thursday">Thursday</option>
-                      <option value="Friday">Friday</option>
-                    </select>
-                  </div>
-                  <div class="form-group mb-3">
-                    <label class="text-primary" for="class_start_time">
-                      Start Time <span class="text-danger">*</span>
-                    </label>
-                    <input type="time" class="form-control rounded w-50" id="class_start_time" name="class_start_time" required
-                    style="height: 32px; padding: 4px 8px; font-size: 0.875rem;">
-                  </div>
-                  <div class="form-group mb-3">
-                    <label class="text-primary" for="class_end_time">
-                      End Time <span class="text-danger">*</span>
-                    </label>
-                    <input type="time" class="form-control rounded w-50" id="class_end_time" name="class_end_time" required
-                    style="height: 32px; padding: 4px 8px; font-size: 0.875rem;">
-                  </div>
-                  <input type="submit" name="submit" value="Add Schedule" class="btn btn-gradient-primary me-2">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </form>
-              </div>
+ 
             </div>
           </div>
         </div>
@@ -280,7 +191,8 @@
     </div>
   </div>
 </div>
-
+</di>
+</div>
 </div>     
                        <!-- MODAL ends -->
           <!-- partial:partials/_footer.html -->
@@ -317,5 +229,39 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
+    <script>
+function loadStudents(searchValue = "") {
+  fetch(`/search_students?query=${searchValue}`)
+    .then(response => response.json())
+    .then(data => {
+      const studentList = document.getElementById("studentList");
+      studentList.innerHTML = "";
+
+      data.forEach(student => {
+        const studentHTML = `
+          <div class="form-check mb-1 px-2" style="width: 100%; max-width: 450px;">
+            <input class="form-check-input me-2" type="checkbox" name="student_ids" value="${student.student_id}" id="student_${student.student_id}">
+            <label class="form-check-label" for="student_${student.student_id}">
+              <i>${student.student_id}</i>, ${student.last_name} ${student.first_name} ${student.middle_name}
+            </label>
+          </div>
+        `;
+        studentList.insertAdjacentHTML('beforeend', studentHTML);
+      });
+    });
+}
+
+// Load all students on page load
+document.addEventListener("DOMContentLoaded", function () {
+  loadStudents(); // empty query → fetch all students
+});
+
+// Load students when typing in the search box
+document.getElementById("studentSearch").addEventListener("input", function () {
+  loadStudents(this.value);
+});
+</script>
+
+
   </body>
 </html>

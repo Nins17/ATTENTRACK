@@ -8390,7 +8390,7 @@
   --bs-danger: #fe7c96;
   --bs-light: #f8f9fa;
   --bs-dark: #3e4b5b;
-  --bs-primary-rgb: 182, 109, 255;
+  --bs-primary-rgb: green;
   --bs-secondary-rgb: 195, 189, 189;
   --bs-success-rgb: 27, 207, 180;
   --bs-info-rgb: 25, 138, 227;
@@ -10313,7 +10313,7 @@ progress {
   --bs-table-color: #000;
   --bs-table-bg: #d1e7dd;
   --bs-table-border-color: #a7b9b1;
-  --bs-table-striped-bg: #c7dbd2;
+  --bs-table-striped-bg: #a7b9b1;
   --bs-table-striped-color: #000;
   --bs-table-active-bg: #bcd0c7;
   --bs-table-active-color: #000;
@@ -10492,6 +10492,8 @@ progress {
 [type=file].tt-hint:not(:disabled):not([readonly]), .select2-container--default .select2-selection--single [type=file].select2-search__field:not(:disabled):not([readonly]), .select2-container--default [type=file].select2-selection--single:not(:disabled):not([readonly]) {
   cursor: pointer;
 }
+
+
 .form-control:focus, .typeahead:focus,
 .tt-query:focus,
 .tt-hint:focus, .select2-container--default .select2-selection--single .select2-search__field:focus, .select2-container--default .select2-selection--single:focus {
@@ -10532,8 +10534,8 @@ progress {
   padding: 0.94rem 1.375rem;
   margin: -0.94rem -1.375rem;
   margin-inline-end: 1.375rem;
-  color: var(--bs-body-color);
-  background-color: green;
+  color: white;
+  background-color: rgb(27, 66, 27);
   pointer-events: none;
   border-color: inherit;
   border-style: solid;
@@ -10552,7 +10554,7 @@ progress {
 .form-control:hover:not(:disabled):not([readonly])::file-selector-button, .typeahead:hover:not(:disabled):not([readonly])::file-selector-button,
 .tt-query:hover:not(:disabled):not([readonly])::file-selector-button,
 .tt-hint:hover:not(:disabled):not([readonly])::file-selector-button, .select2-container--default .select2-selection--single .select2-search__field:hover:not(:disabled):not([readonly])::file-selector-button, .select2-container--default .select2-selection--single:hover:not(:disabled):not([readonly])::file-selector-button {
-  background-color: green;
+  background-color: rgb(122, 145, 106);
 }
 
 .form-control-plaintext {
@@ -12802,6 +12804,7 @@ textarea.is-invalid.tt-hint, .select2-container--default .select2-selection--sin
   background-clip: border-box;
   border: var(--bs-card-border-width) solid var(--bs-card-border-color);
   border-radius: var(--bs-card-border-radius);
+  
 }
 .card > hr {
   margin-right: 0;
@@ -15907,7 +15910,7 @@ textarea.is-invalid.tt-hint, .select2-container--default .select2-selection--sin
 
 .border-primary {
   --bs-border-opacity: 1;
-  border-color: rgba(var(--bs-primary-rgb), var(--bs-border-opacity)) !important;
+  border-color: rgba(var(--bs-primary-rgb)) !important;
 }
 
 .border-secondary, .loader-demo-box {
@@ -21217,7 +21220,7 @@ code {
 }
 
 .bg-gradient-primary {
-  background: linear-gradient( 109.6deg,  rgba(34,126,34,1) 11.2%, rgba(99,162,17,1) 91.1% )!important;
+  background: linear-gradient( 109.6deg,  #103912 11.2%, #93be70)!important;
 }
 .gradient-primary{
   color:green;
@@ -21225,6 +21228,9 @@ code {
 
 .bg-gradient-secondary {
   background: linear-gradient(to right, #e7ebf0, #868e96) !important;
+}
+.bg-gradient-secondary2 {
+  background: linear-gradient( #103912  11.2%, #93be70) !important;
 }
 
 .bg-gradient-success, .datepicker-custom .datepicker.datepicker-inline .datepicker-days .table-condensed tbody tr td.day.today:before {
@@ -21236,11 +21242,11 @@ code {
 }
 
 .bg-gradient-warning, .datepicker-custom .datepicker.datepicker-inline .datepicker-days .table-condensed tbody tr td.day.active:before {
-  background: linear-gradient(to right, #f6e384, #ffd500) !important;
+  background: linear-gradient(to right, #f6e384, #8F750C) !important;
 }
 
 .bg-gradient-danger {
-  background: linear-gradient(to right, #ffbf96, #fe7096) !important;
+  background: linear-gradient(to right, black, #292626,#661212) !important;
 }
 
 .bg-gradient-light {
@@ -21848,14 +21854,14 @@ code {
 }
 
 .badge-dark {
-  border: 1px solid #3e4b5b;
+  border: 1px solid #3e4b5b;  
   color: #ffffff;
   background: #3e4b5b;
 }
 
 /*Badge gradient variations*/
 .badge-gradient-primary {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: llinear-gradient( 109.6deg,  #103912 11.2%, #93be70);
   color: #ffffff;
 }
 
@@ -21875,7 +21881,7 @@ code {
 }
 
 .badge-gradient-warning {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
   color: #ffffff;
 }
 
@@ -22303,7 +22309,7 @@ code {
 }
 
 .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900 #9a55ff);
   color: #000000;
 }
 
@@ -22471,7 +22477,7 @@ code {
 }
 
 .btn-outline-warning:hover, .btn-outline-warning:focus, .btn-outline-warning:active {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
   color: #000000;
 }
 
@@ -22603,7 +22609,7 @@ code {
 
 /* gradient buttons */
 .btn-gradient-primary {
-  background: linear-gradient(to right, #54F7A0, #357500);
+  background: linear-gradient( 109.6deg,  #103912 11.2%, #93be70);
   border: 0;
   -webkit-transition: opacity 0.3s ease;
   -moz-transition: opacity 0.3s ease;
@@ -22612,7 +22618,7 @@ code {
   transition: opacity 0.3s ease;
 }
 .btn-gradient-primary:not([disabled]):not(.disabled):active, .btn-gradient-primary:not([disabled]):not(.disabled).active, .show > .btn-gradient-primary.dropdown-toggle {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  opacity: 0.2;
 }
 .btn-gradient-primary:hover {
   opacity: 0.8;
@@ -22627,6 +22633,8 @@ code {
 .btn-gradient-secondary {
   background: linear-gradient(to right, #e7ebf0, #868e96);
   border: 0;
+  color: rgb(255, 255, 255);
+  text-shadow:1px 1px 1px black, 0 0 25px white;
   -webkit-transition: opacity 0.3s ease;
   -moz-transition: opacity 0.3s ease;
   -ms-transition: opacity 0.3s ease;
@@ -22635,15 +22643,18 @@ code {
 }
 .btn-gradient-secondary:not([disabled]):not(.disabled):active, .btn-gradient-secondary:not([disabled]):not(.disabled).active, .show > .btn-gradient-secondary.dropdown-toggle {
   background: linear-gradient(to right, #e7ebf0, #868e96);
+  color: white;
 }
 .btn-gradient-secondary:hover {
   opacity: 0.8;
+ 
 }
 .btn-gradient-secondary:not(.btn-gradient-light) {
   color: #ffffff;
 }
 .btn-gradient-secondary:not(.btn-gradient-light):hover, .btn-gradient-secondary:not(.btn-gradient-light):focus, .btn-gradient-secondary:not(.btn-gradient-light):active {
-  color: #ffffff;
+  color: #000;
+  text-shadow:none;
 }
 
 .btn-gradient-success {
@@ -22691,7 +22702,7 @@ code {
 }
 
 .btn-gradient-warning {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384,#8F750C );
   border: 0;
   -webkit-transition: opacity 0.3s ease;
   -moz-transition: opacity 0.3s ease;
@@ -22700,7 +22711,7 @@ code {
   transition: opacity 0.3s ease;
 }
 .btn-gradient-warning:not([disabled]):not(.disabled):active, .btn-gradient-warning:not([disabled]):not(.disabled).active, .show > .btn-gradient-warning.dropdown-toggle {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
 }
 .btn-gradient-warning:hover {
   opacity: 0.8;
@@ -22748,6 +22759,7 @@ code {
 }
 .btn-gradient-light:hover {
   opacity: 0.8;
+  color: #000;
 }
 .btn-gradient-light:not(.btn-gradient-light) {
   color: #ffffff;
@@ -23186,7 +23198,7 @@ code {
   top: 0;
   right: 0;
   height: 100%;
-  width: 75%;
+  width: 60%;
 }
 .card.bg-blue-gradient {
   background: linear-gradient(to right, #065efd, #3169fd, #6f79fc);
@@ -23362,7 +23374,7 @@ code {
   color: #ffffff;
 }
 .form-check .form-check-label input[type=checkbox]:checked + .input-helper:before {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
   border-width: 0;
 }
 .form-check .form-check-label input[type=checkbox]:checked + .input-helper:after {
@@ -23432,7 +23444,7 @@ code {
   right: 6px;
 }
 .form-check .form-check-label input[type=radio]:checked + .input-helper:before {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
   border-width: 0;
 }
 .form-check .form-check-label input[type=radio]:checked + .input-helper:after {
@@ -23460,7 +23472,7 @@ code {
 }
 .form-check-primary.form-check label input[type=checkbox]:checked + .input-helper:before,
 .form-check-primary.form-check label input[type=radio]:checked + .input-helper:before {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
 }
 
 .form-check-secondary.form-check label input[type=checkbox] + .input-helper:before,
@@ -23496,7 +23508,7 @@ code {
 }
 .form-check-warning.form-check label input[type=checkbox]:checked + .input-helper:before,
 .form-check-warning.form-check label input[type=radio]:checked + .input-helper:before {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
 }
 
 .form-check-danger.form-check label input[type=checkbox] + .input-helper:before,
@@ -23910,13 +23922,13 @@ dl li {
   background: linear-gradient(to right, #90caf9, #047edf 99%);
 }
 .gradient-bullet-list li:nth-child(3):before {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
 }
 .gradient-bullet-list li:nth-child(4):before {
   background: linear-gradient(to right, #84d9d2, #07cdae);
 }
 .gradient-bullet-list li:nth-child(5):before {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
 }
 
 .bullet-line-list {
@@ -24763,7 +24775,7 @@ dl li {
   color: green;
 }
 .pws_tabs_container ul.pws_tabs_controll li a.pws_tab_active {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
   color: #fff;
 }
 .pws_tabs_container .demo-tabs {
@@ -25494,7 +25506,7 @@ dl li {
 }
 /* Navbar color variations */
 .navbar.navbar-primary .navbar-menu-wrapper {
-  background: linear-gradient(to right, #da8cff, #9a55ff);
+  background: linear-gradient(to right, #669900, #9a55ff);
   color: #ffffff;
 }
 .navbar.navbar-primary .navbar-menu-wrapper .search-field .input-group input:-ms-input-placeholder {
@@ -25574,7 +25586,7 @@ dl li {
 }
 
 .navbar.navbar-warning .navbar-menu-wrapper {
-  background: linear-gradient(to right, #f6e384, #ffd500);
+  background: linear-gradient(to right, #f6e384, #8F750C);
   color: #ffffff;
 }
 .navbar.navbar-warning .navbar-menu-wrapper .search-field .input-group input:-ms-input-placeholder {
@@ -26315,7 +26327,7 @@ dl li {
 }
 
 .card:hover {
-  transform: scale(1.05);
+  transform: none;
   cursor: pointer;
 }
 .card:active{
@@ -26330,4 +26342,16 @@ dl li {
 .green-gradient-2 {
   background: linear-gradient(45deg, #00b09b, #96c93d);
   color: white;
+}
+
+.inner-shadow {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  border: 1px solid #ccc;
+}
+
+.inner-shadow:focus {
+  border-color: var(--bs-gray-500);
+}
+.inner-shadow:focus::placeholder {
+  color: transparent;
 }

@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title> AttenTrack</title>
+    <title>AttenTrack</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
@@ -29,7 +29,7 @@
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/user_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/admin/admin_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
 
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-stretch">
@@ -42,11 +42,11 @@
               {%for info in logged_teacher%}
               <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="nav-profile-img">
-                  <img src="" alt="image">
+                  <img src="{{info[1]}}" alt="image">
                   <span class="availability-status online"></span>
                 </div>
                 <div class="nav-profile-text">
-                  <p class="mb-1 text-black">Teacher {{info[1]}}</p>
+                  <p class="mb-1 text-black">Teacher {{info[2]}}</p>
                 </div>
               </a>
               {%endfor%}
@@ -59,14 +59,14 @@
               </div>
             </li>
             <li class="nav-item d-none d-lg-block full-screen-link">
-              <a class="nav-link">
+              <a class="nav-link" title="Enter Fullscreen">
                 <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
               </a>
             </li>
             <li class="nav-item nav-logout d-none d-lg-block">
-              <a class="nav-link" href="/">
+              <button class="nav-link cursor-pointer" title="Log Out" data-bs-toggle="modal" data-bs-target="#signout">
                 <i class="mdi mdi-power"></i>
-              </a>
+              </button>
             </li>
            
           </ul>
@@ -81,37 +81,36 @@
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
             <li class="nav-item">
-              <a class="nav-link" href="/user_home">
+              <a class="nav-link" href="/admin/admin_home">
 
-                <span class="menu-title" style="color: #558B2F;">Home</span>
-                <i class="mdi mdi-home menu-icon " style="color: #558B2F;"></i>
+                <span class="menu-title" >Home</span>
+                <i class="mdi mdi-home menu-icon " ></i>
               </a>
             </li>
             
-            
-                        <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
                 <span class="menu-title">Records</span>
                 <i class="mdi mdi-table-large menu-icon"></i>
               </a>
               <div class="collapse" id="icons">
                 <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('attendance_record')}}">Attendance Record</a>
+                     <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.attendance_records') }}">Attendance Records</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('view_student_list')}}">Student List</a>
+                    <a class="nav-link" href="{{ url_for('admin.student_list') }}">Student List</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('class_schedules')}}">Schedules</a>
+                    <a class="nav-link" href="{{ url_for('admin.class_schedule_list')}}">Schedules</a>
                   </li>
                 </ul>
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="" aria-expanded="false" aria-controls="tables">
-                <span class="menu-title">Attendace</span>
-                <i class="mdi mdi-calendar-check menu-icon"></i>
+              <a class="nav-link" href="{{ url_for('admin.registered_teacher_list')}}" aria-expanded="false" aria-controls="tables">
+                <span class="menu-title">Registered Teachers</span>
+                <i class="mdi mdi-account-check menu-icon"></i>
               </a>
             </li>
             
@@ -121,44 +120,59 @@
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="page-header">
+             
               <div class="d-flex">
-              <a href="/user_home" style="text-decoration:none;"><h3 class="page-title">
-                <span class="page-title-icon bg-gradient-primary text-white me-2">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
                 </span>
               </h3></a>
-              <a href="/class_schedules" title="Go back to class Schedules" style="text-decoration:none;"><h3 class="page-title">
-                <span class="page-title-icon bg-gradient-primary text-white me-2">
+              <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-arrow-left-bold"></i>
                 </span>
-              </h3></a>
+              </h3>
+            </a>
+              
+              <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
+                <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
+                  <i class="mdi mdi-arrow-right-bold"></i>
+                </span>
+              </h3>
+            </a>
             </div>
-              <button type="button" class="d-inline-flex align-items-center bg-gradient-primary text-white px-3 py-2 rounded border-0 fs-6" data-bs-toggle="modal" data-bs-target="#AdSchedModal">
-           
-                Add Student
-              </button>
+              
+              
             
             </div>
             <div class="row"> 
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Students in this Class Schedule</h4>
+                    <h4 class="card-title">Attendance Records</h4>
                     <div class="table-responsive">
                       <table class="table table-striped">
                         <thead >
                         <tr>
-                          <th class="font-weight-bold text-primary"><b>Schedule Enrollment ID</b></th>
-                          <th class="font-weight-bold text-primary"><b>Student ID</b></th>
-                          <th class="font-weight-bold text-primary"> <b>Student Names</b></th>
+                          <th class="font-weight-bold text-primary"><b> File Id</b> </th>
+                          <th class="font-weight-bold text-primary"><b>Sched ID</b></th>
+                          <th class="font-weight-bold text-primary"><b>File Name</b></th>
+                          <th class="font-weight-bold text-primary"><b>Teacher Name</b></th>
+                          <th class="font-weight-bold text-primary"> <b>CSV file</b></th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% for student in students %}
+                        {% for csv in csv_files %}
                         <tr>
-                          <td  class="text-secondary"> 00{{student[0]}}</td>
-                          <td  class="text-secondary"> {{student[1]}}</td>
-                          <td style="font-size:12px;"> <i>{{student[3]}}</i> </td>
+                          <td  class="text-secondary"> 000{{csv[0]}}</td>
+                          <td style="font-size:12px;"> <i>{{csv[1]}} </i> </td>
+                          <td style="font-size:12px;"> <i>{{csv[2]}}</i></td>
+                          <td style="font-size:12px;"> <i>{{csv[-4]}} {{csv[-3]}} {{csv[-2]}} {{csv[-1]}}</i></td>
+                          <td style="font-size:12px;"> <a href="{{csv[3]}}" download>
+                                Download
+                            </a></td>
                         </tr>
                        {% endfor %}
                       </tbody>
@@ -168,70 +182,43 @@
               </div>
 
             </div>
-            
+        </div>
           </div>
           <!-- content-wrapper ends -->
 
-
-                <!-- MODAL -->
-
-<div class="modal fade" id="AdSchedModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content bg-white">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Add Student to this Schedule</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="content-wrapper">         
-          <div class="col-12 col-md-10 col-lg-8 mx-auto">
-            <div class="card mx-auto" style="width:600px;">
-              <div class="card-body" >
-                <h4 class="card-title fw-bold">Student List</h4>
-                <p class="card-description " style="font-size:10px;">*Select Student to enroll</p>
-               <form action="{{ url_for('add_student_tosched', schedule_id=schedule_id) }}" method="POST" class="forms-sample text-primary">
-                      <div class="form-group mb-3">
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <label class="text-primary mb-0">
-                            Select Students <span class="text-danger">*</span>
-                          </label>
-                          <input type="text" id="studentSearch" class="form-control form-control-sm" placeholder="Search Student ID..." style="width: 200px;">
-
-                        </div>
-
-                        <div class="border p-2" style="max-height: 200px; overflow-y: auto;">
-                          <div class="d-flex flex-column align-items-center" style="background:#E4EFE7;" id="studentList">
-                            {% for student in students %}
-                            <div class="form-check mb-1 px-2" style="width: 100%; max-width: 450px;">
-                              <label class="form-check-label" for="student_{{ student[0] }}">
-                                <i>{{ student[0] }}</i>, {{ student[3] }} {{ student[1] }} {{ student[2] }}
-                              </label>
-                              <input class="form-check-input me-2" type="checkbox" name="student_ids" value="{{ student[0] }}" id="student_{{ student[0] }}">
-                              
-                            </div>
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="mt-3 d-flex gap-2">
-                        <input type="submit" name="submit" value="Add to Schedule" class="btn btn-gradient-primary">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      </div>
-                  </form>
-
- 
-            </div>
+          <!--sign out-->
+<div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content text-center rounded-3 shadow">
+      
+      <div class="modal-body p-3">
+        <!-- Icon inside a circle -->
+        <div class="d-flex justify-content-center mb-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center" 
+               style="width: 55px; height: 55px; background-color: rgba(117, 125, 107, 0.51);">
+            <i class="mdi mdi-progress-alert" style="font-size: 28px; color:rgb(88, 15, 15);"></i>
           </div>
+        </div>
+
+        <!-- Title -->
+        <h6 class="fw-bold text-dark mb-2">Confirm Sign Out</h6>
+        <p class="text-muted small mb-3">Are you sure you want to sign out?</p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-outline-dark btn-sm px-3 py-1" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <a href="{{ url_for('sign_out') }}" 
+             class="btn btn-sm  px-3 py-1 text-white" 
+             style=" background-color: rgba(56, 74, 34, 0.94); border-color:rgb(34, 34, 33);">
+            Yes, Sign Out
+          </a>
         </div>
       </div>
     </div>
   </div>
 </div>
-</di>
-</div>
-</div>     
                        <!-- MODAL ends -->
           <!-- partial:partials/_footer.html -->
           <footer class="footer">
@@ -267,37 +254,5 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
-    <script>
-document.getElementById("studentSearch").addEventListener("input", function () {
-  const searchValue = this.value.trim().toLowerCase();
-  const studentItems = document.querySelectorAll("#studentList .form-check");
-
-  let anyVisible = false;
-
-  studenttems.forEach(item => {
-    const text = item.innerText.toLowerCase();
-    if (text.includes(searchValue)) {
-      item.style.display = "";
-      anyVisible = true;
-    } else {
-      item.style.display = "none";
-    }
-  });
-
-  // Show "No schedules found" if none match
-  let noFound = document.getElementById("noStudentFound");
-  if (!noFound) {
-    noFound = document.createElement("p");
-    noFound.id = "noStudentFound";
-    noFound.className = "text-muted px-2";
-    document.getElementById("studentList").appendChild(noFound);
-  }
-  noFound.textContent = anyVisible ? "" : "No student found.";
-});
-
-
-</script>
-
-
   </body>
 </html>
