@@ -97,9 +97,11 @@ def enrollStudentform():
     else:
         return not_logged()
  
-@admin.route('/enroll_student',methods=["POST", "GET"])
+
+@admin.route("/enroll_student", methods=["POST", "GET"])
 def enroll_student():
     cursor, conn = get_db_cursor()
+
     if request.method == "POST":
         student_id = request.form['student_id']
         student_first_name = request.form['student_first_name']
@@ -111,86 +113,94 @@ def enroll_student():
         guardian_contact = request.form['guardian_contact']
         student_gradelevel = request.form['current_gradelevel']
         student_section = request.form['section']
-        
-            # Ensure the name is safe for filename
-        filename = f"{student_id}.jpg"
-        image_path = os.path.join(SAVE_DIR, filename)  # full path where image will be saved
+
+        # Check if student already exists in DB
+        cursor.execute('SELECT * FROM student_info WHERE student_id = %s', [student_id])
+        student_exist = cursor.fetchone()
+        if student_exist:
+            flash('Student already enrolled.', 'error')
+            return redirect(url_for('admin.enrollStudentform'))
+
+        # Create a folder for this student (e.g. known_faces/101/)
+        student_dir = os.path.join(SAVE_DIR, str(student_id))
+        if not os.path.exists(student_dir):
+            os.makedirs(student_dir)
 
         # Open webcam
         cap = cv2.VideoCapture(0)
+        photo_count = 0
+        max_photos = 3  # capture up to 3 faces
+
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
+
             frame = cv2.flip(frame, 2)
             height, width = frame.shape[:2]
-
-            # Define the center rectangle (ROI) where user should align their face
             box_width, box_height = 300, 300
             x1 = width // 2 - box_width // 2
             y1 = height // 2 - box_height // 2
             x2 = x1 + box_width
             y2 = y1 + box_height
 
-            # Draw the rectangle frame
+            # Draw the face box
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, "Align face inside box. Press 's' to save.",
+            cv2.putText(frame, f"Align face inside box. ({photo_count}/{max_photos})",
                         (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, "Press 's' to Save | 'q' to Quit", (x1, y2 + 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
 
-
-            cv2.imshow("Press 's' to Save, 'q' to Quit", frame)
-
+            cv2.imshow("Student Enrollment", frame)
             key = cv2.waitKey(1)
+
             if key == ord('s'):
-                cursor.execute('SELECT * FROM `student_info` WHERE student_id = %s' , [student_id])
-                student_exist = cursor.fetchall()
-                
-                if student_exist:
-                    flash('Student Enrolled already', 'error')
-                    return redirect(url_for('admin.enrollStudentform'))
-                else:
-                    cropped_face = frame[y1:y2, x1:x2]
-                    if os.path.exists(image_path):
-                        print(f"Image already exists at: {image_path}")
-                    else:
-                        cv2.imwrite(image_path, cropped_face)
-                        print(f"Image saved at: {image_path}")
-                    
-                    image_path_for_db = image_path.replace("\\", "/") #path to be stored in db
-                    
-                    query = """ 
-                        INSERT INTO `student_info`(
-                            `student_id`, 
-                            `student_image_path`, 
-                            `student_first_name`, 
-                            `student_middle_name`, 
-                            `student_last_name`, 
-                            `student_suffix`, 
-                            `student_age`, 
-                            `student_guardian`, 
-                            `guardian_contact`,
-                            `current_grade_level`,
-                            `section`
-                        ) 
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                        """
-                    values = (student_id, image_path_for_db, student_first_name, student_middle_name, student_last_name, student_suffix, student_age, student_guardian, guardian_contact,student_gradelevel,student_section)
-                    
-                    cursor.execute(query,values)
-            
-                    conn.commit()
-                    cursor.close()
-                    flash('Student Enrolled Successfully', 'success')
-                    return redirect(url_for('admin.enrollStudentform'))
+                cropped_face = frame[y1:y2, x1:x2]
+
+                # Save image as 1.jpg, 2.jpg, 3.jpg
+                filename = f"{photo_count + 1}.jpg"
+                image_path = os.path.join(student_dir, filename)
+                cv2.imwrite(image_path, cropped_face)
+                print(f"Saved {image_path}")
+                photo_count += 1
+
+                if photo_count >= max_photos:
+                    print("Collected enough images.")
+                    break
 
             elif key == ord('q'):
+                flash("Enrollment canceled by user.")
                 break
 
         cap.release()
         cv2.destroyAllWindows()
 
-        
+        # If at least one photo was saved, save info to database
+        if photo_count > 0:
+            first_image_path = os.path.join(student_dir, "1.jpg").replace("\\", "/")
+            query = """
+                INSERT INTO student_info(
+                    student_id, student_image_path, student_first_name, student_middle_name,
+                    student_last_name, student_suffix, student_age, student_guardian,
+                    guardian_contact, current_grade_level, section
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
+            values = (
+                student_id, first_image_path, student_first_name, student_middle_name,
+                student_last_name, student_suffix, student_age, student_guardian,
+                guardian_contact, student_gradelevel, student_section
+            )
+            cursor.execute(query, values)
+            conn.commit()
+            cursor.close()
+            flash(f'Student {student_first_name} enrolled successfully with {photo_count} face images.', 'success')
+        else:
+            flash('No images were captured. Enrollment incomplete.', 'error')
+
         return redirect(url_for('admin.enrollStudentform'))
+
+    return redirect(url_for('admin.student_list'))
+
     
 @admin.route('/getSection_forEnroll', methods=["POST"])
 def getSection_forEnroll():
@@ -565,7 +575,7 @@ def update_student_info_page(student_id):
 def update_student_info(student_id):
     if request.method == "POST":
         cursor,conn=get_db_cursor()
-        temp_photo_path = request.form.get("new_captured_photo")  
+        # temp_photo_path = request.form.get("new_captured_photo")  
         new_student_first_name = request.form.get("student_first_name")
         new_student_middle_name = request.form.get("student_middle_name")
         new_student_last_name = request.form.get("student_last_name")
@@ -576,46 +586,45 @@ def update_student_info(student_id):
         new_student_gradelevel = request.form.get("current_gradelevel")
         new_student_section = request.form.get("section")
         
-        if temp_photo_path:
-            # Remove the "/static/" to change to correct format 
-            temp_photo_path = temp_photo_path.replace("/static/", "")  
-            full_old_path = os.path.join("static", temp_photo_path)
+        # if temp_photo_path:
+        #     # Remove the "/static/" to change to correct format 
+        #     temp_photo_path = temp_photo_path.replace("/static/", "")  
+        #     full_old_path = os.path.join("static", temp_photo_path)
 
-            # Get the file extension (like ".jpg" or ".png")
-            _, ext = os.path.splitext(full_old_path)
-            new_filename = f"{student_id}{ext}"
-            folder_to_move = os.path.join("static", "known_faces")
-            new_path = os.path.join(folder_to_move, new_filename)
+        #     # Get the file extension (like ".jpg" or ".png")
+        #     _, ext = os.path.splitext(full_old_path)
+        #     new_filename = f"{student_id}{ext}"
+        #     folder_to_move = os.path.join("static", "known_faces")
+        #     new_path = os.path.join(folder_to_move, new_filename)
 
-            # Make sure the folder exists
-            os.makedirs(folder_to_move, exist_ok=True)
+        #     # Make sure the folder exists
+        #     os.makedirs(folder_to_move, exist_ok=True)
 
-            # If the temp file exists, move and rename it
-            if os.path.exists(full_old_path):
-                if os.path.exists(new_path):
-                    os.remove(new_path) # Delete old photo with the same name to avoid duplicates
-                os.rename(full_old_path, new_path)
-                print(" Succesfully moved new photo to:", new_path)
-                new_image_path_for_db = new_path.replace("\\", "/")
-            else:
-                # keeping the current one in the database
-                print("No changes to image")
-                cursor.execute("SELECT student_image_path FROM student_info WHERE student_id = %s", (student_id,))
-                existing_photo = cursor.fetchone()
-                if existing_photo:
-                    new_image_path_for_db = existing_photo[0]
-                else:
-                    new_image_path_for_db = None
-        else:
+        #     # If the temp file exists, move and rename it
+        #     if os.path.exists(full_old_path):
+        #         if os.path.exists(new_path):
+        #             os.remove(new_path) # Delete old photo with the same name to avoid duplicates
+        #         os.rename(full_old_path, new_path)
+        #         print(" Succesfully moved new photo to:", new_path)
+        #         new_image_path_for_db = new_path.replace("\\", "/")
+        #     else:
+        #         # keeping the current one in the database
+        #         print("No changes to image")
+        #         cursor.execute("SELECT student_image_path FROM student_info WHERE student_id = %s", (student_id,))
+        #         existing_photo = cursor.fetchone()
+        #         if existing_photo:
+        #             new_image_path_for_db = existing_photo[0]
+        #         else:
+        #             new_image_path_for_db = None
+        # else:
         # No new photo submitted
-            cursor.execute("SELECT student_image_path FROM student_info WHERE student_id = %s", (student_id,))
-            existing_photo = cursor.fetchone()
-            new_image_path_for_db = existing_photo[0] if existing_photo else None
+        # cursor.execute("SELECT student_image_path FROM student_info WHERE student_id = %s", (student_id,))
+        # existing_photo = cursor.fetchone()
+        # new_image_path_for_db = existing_photo[0] if existing_photo else None
             
         query = """
                 UPDATE student_info
                 SET 
-                    student_image_path =%s,
                     student_first_name = %s,
                     student_middle_name = %s,
                     student_last_name = %s,
@@ -629,7 +638,7 @@ def update_student_info(student_id):
             """
 
         values = (
-            new_image_path_for_db,
+            # new_image_path_for_db,
             new_student_first_name,
             new_student_middle_name,
             new_student_last_name,
@@ -662,16 +671,41 @@ def remove_student_confirmation(student_id):
     else:
         return not_logged()
     
-@admin.route('/remove_student/<int:student_id>',  methods=["POST", "GET"])
+@admin.route('/remove_student/<int:student_id>', methods=["POST", "GET"])
 def remove_student(student_id):
     if request.method == "POST":
-        cursor,conn = get_db_cursor()
+        cursor, conn = get_db_cursor()
+
+        cursor.execute("""
+            SELECT DISTINCT schedule_id FROM student_schedule_enrollments WHERE student_id = %s
+        """, (student_id,))
+        schedule_rows = cursor.fetchall()
+
         cursor.execute("DELETE FROM student_info WHERE student_id = %s", (student_id,))
         conn.commit()
-        
-        flash("Student Removed",'success')
+
+        student_dir = os.path.join(SAVE_DIR, str(student_id))
+        if os.path.exists(student_dir) and os.path.isdir(student_dir):
+            for filename in os.listdir(student_dir):
+                file_path = os.path.join(student_dir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            os.rmdir(student_dir)
+
+        for (sched_id,) in schedule_rows:
+            cursor.execute("""
+                UPDATE class_schedules
+                SET number_of_students = (
+                    SELECT COUNT(*) FROM student_schedule_enrollments WHERE schedule_id = %s
+                )
+                WHERE schedule_id = %s
+            """, (sched_id, sched_id))
+            conn.commit()
+
         cursor.close()
+        flash("Student removed successfully.", "success")
         return redirect(url_for('admin.student_list'))
+
                         
 ####OTHER ROUTES###Cameras
 @admin.route('/update_student/camera/<int:student_id>')

@@ -108,7 +108,9 @@
         <div class="main-panel">
             <div class="content-wrapper">
               <div class="page-header">
-                <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+                   <nav aria-label="breadcrumb">
+                  <div class="d-flex">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
                 <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
                 </span>
@@ -128,10 +130,13 @@
                 </span>
               </h3>
             </a>
-                <h3 class="page-title">Update Student Information</h3>
-                <nav aria-label="breadcrumb">
-                </nav>
+            </div>
+                
               </div>
+              <nav aria-label="breadcrumb">
+                  <h3 class="page-title"> Register Teacher Form </h3>
+                </nav>
+             
                 <div class="col-6 m-1 stretch-card mx-auto">
                   <div class="card">
                     <div class="card-body">
@@ -149,7 +154,7 @@
                 {% endwith %}
                       <form class="forms-sample" action="/admin/update_student_info/{{student[0]}}" method="POST" enctype="multipart/form-data">
                          <div class="form-group">
-                            {% if student_new_photo %}
+                            <!--{% if student_new_photo %}
                             <label for="student_photo">New Captured Photo: </label>
                             <img id="photoPreview" src="{{ url_for('static', filename=student_new_photo) }}" alt="New Photo" width="120" class="rounded-circle border border-primary border-3">
                             <br><br>
@@ -171,16 +176,16 @@
                             </button>
                             
                                     
-                             {% else %}
+                             {% else %}-->
                                     <!-- File Upload Option (no photo yet) -->
-                                    <label for="student_photo">Currently Enrolled Photo: </label>
+                                    <label for="student_photo">Student Photo: </label>
                                     <img src="../{{student[1]}}" alt="Student Photo" width="120" class="rounded-circle border border-primary success border-3">
-                                    <input type="hidden" name="new_captured_photo" value="{{student[1]}}">
+                                     <!--<input type="hidden" name="new_captured_photo" value="{{student[1]}}">
                                     <br> <br>    <button type="button" class="btn btn-gradient-primary text-light btn-sm"
                                         onclick="window.location.href='{{ url_for('admin.update_studentcamera', student_id=student[0]) }}'">
                                         <i class="mdi mdi-camera"></i> Open Camera To capture new photo
                                     </button> 
-                                {% endif %}
+                               {% endif %}-->
                             </div>
                         <div class="form-group">
                         <div class="form-group">
@@ -239,6 +244,10 @@
                   </div>
                 </div>
             </div>
+             </div>
+              
+             
+
             <!-- content-wrapper ends -->
             <!-- partial:../../partials/_footer.html -->
             <footer class="footer">
