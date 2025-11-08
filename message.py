@@ -1,9 +1,11 @@
 # Una pip install requests
 import requests
+import os
 
 BASE_URL = 'https://api.textbee.dev/api/v1'
-API_KEY = 'd9f24a38-b31f-4930-9c3c-ebfac749f9ac'
-DEVICE_ID = '68e5fdabc2046740cec292e6'
+API_KEY = os.environ.get("TEXTBEE_API_KEY")  # API_KEY = 'd9f24a38-b31f-4930-9c3c-ebfac749f9ac'
+DEVICE_ID = os.environ.get("TEXTBEE_DEVICE_ID")# DEVICE_ID = '68e5fdabc2046740cec292e6'
+
 
 
 

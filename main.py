@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-from admin import admin,mysql
-import os
+from admin import admin,mysql,os
 import csv
 import numpy as np
 from datetime import datetime
