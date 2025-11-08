@@ -25,7 +25,7 @@
     
   </head>
   <body>
-    <div class="container-scroller">9876
+    <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
@@ -39,17 +39,7 @@
 
           <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item nav-profile dropdown">
-              {%for info in logged_teacher%}
-              <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <div class="nav-profile-img">
-                  <img src="" alt="image">
-                  <span class="availability-status online"></span>
-                </div>
-                <div class="nav-profile-text">
-                  <p class="mb-1 text-black">Teacher {{info[1]}}</p>
-                </div>
-              </a>
-              {%endfor%}
+  
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
                 <a class="dropdown-item" href="#">
                   <i class="mdi mdi-account-key me-2 text-success"></i> Profile </a>
@@ -88,7 +78,6 @@
               </a>
             </li>
             
-            
             <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
                 <span class="menu-title">Records</span>
@@ -114,114 +103,44 @@
                 <i class="mdi mdi-account-check menu-icon"></i>
               </a>
             </li>
+            
           </ul>
         </nav>
-        <!-- partial -->
+        <!-- Main Panel -->
         <div class="main-panel">
-          <div class="content-wrapper">
-            <div class="page-header">
-              <div class="d-flex">
-              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
-                <span class="page-title-icon bg-gradient-dark text-white me-2">
-                  <i class="mdi mdi-home"></i>
-                </span>
-              </h3></a>
-              <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
-                <h3 class="page-title">
-                <span class="page-title-icon bg-gradient-dark text-white me-2">
-                  <i class="mdi mdi-arrow-left-bold"></i>
-                </span>
-              </h3>
-            </a>
-              
-              <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
-                <h3 class="page-title">
-                <span class="page-title-icon bg-gradient-dark text-white me-2">
-                  <i class="mdi mdi-arrow-right-bold"></i>
-                </span>
-              </h3>
-            </a>
-            </div>
-              <button type="button" class="d-inline-flex align-items-center bg-gradient-primary text-white px-3 py-2 rounded border-0 fs-6" >
-                <a style="color:white; text-decoration:none;" href="{{url_for('admin.registerteacherform')}}">Register Teacher</a>
-              </button>
-            
-            </div>
-            <div class="row"> 
-              <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">List of Registered Teachers</h4>
-                       {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <p class="mb-1"
-                            style="display:fix;font-size:10px; width:200px; height:25px;{% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
-                                <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
-                            </p>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                    <div class="table-responsive">
-                      <table class="table table-striped">
-                        <thead >
-                        <tr>
-                          <th class="font-weight-bold text-primary"><b>Teacher's ID</b></th>
-                          <th class="font-weight-bold text-primary"><b> </b></th>
-                          <th class="font-weight-bold text-primary"><b>First Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Middle Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Last Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Suffix</b></th>
-                          <th class="font-weight-bold text-muted "><b> Action</b></th>
-                          <th class="font-weight-bold text-muted "><b> Remove Teacher</b></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for teacher in  registered_teacher_lists %}
-                        <tr>
-                          <td  class="text-secondary"><i> {{teacher[0]}}</i></td>
-                          <td  class="text-secondary"> <img src="{{teacher[1]}}" alt="image"></td>
-                          <td style="font-size:12px;">  {{teacher[2] }} </td>
-                          <td  class="text-black"> {{ teacher[3] }}</td>
-                          <td  class="text-black">  {{ teacher[4] }}</td>
-                          <td  class="text-black">  {{ teacher[5] }}</td>
-                          <td>
-                              <a href="{{ url_for('admin.update_teacher_form', teacher_id=teacher[0]) }}"
-                                class="btn bg-gradient-primary  text-white px-3 py-2 rounded border-0">
-                                <span class="mdi mdi-account-convert">  Update Teacher</span> 
-                              </a>
-                            </td>
-                            <td>
-                             <a href="{{ url_for('admin.remove_teacher_confirmation', teacher_id=teacher[0]) }}"
-                                class="btn bg-gradient-danger  text-white px-3 py-2 rounded border-0">
-                                <span class="mdi mdi-account-remove"> Delete Teacher </span> 
-                              </a>
-                            </td>
-                        </tr>
-                       {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
+          <div class="content-wrapper d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+            <div class="bg-white text-center rounded-4 shadow-lg border-0 p-4" style="max-width: 400px; width: 100%;">
+              <div class="d-flex justify-content-center mb-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:60px; height:60px; background-color: rgba(117,125,107,0.15);">
+                  <i class="mdi mdi-account-remove" style="font-size:30px; color:#8B0000;"></i>
                 </div>
               </div>
 
-            </div>
-            
-          </div>
+              <h6 class="fw-bold text-dark mb-2">Confirm Remove Schedule</h6>
+              <p class="text-secondary mb-4">
+                Are you sure you want to remove 
+                <strong><b style="color:green;"><u><i>{{ teacher_info[2] }} {{ teacher_info[3] }} {{ teacher_info[4] }} {{ teacher_info[5] }}</i></u></b></strong> 
+                account from the list?
+              </p>
+
+              <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('admin.registered_teacher_list')}}" 
+                   class="btn btn-outline-dark btn-sm px-4 py-1">Cancel</a>
+
+                <form action="{{ url_for('admin.remove_teacher', teacher_id=teacher_info[0])}}" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm px-4 py-1 text-white" style="background-color:#8B0000;">Remove</button>
+                </form>
+              
+                </div> <!-- card -->
+                
+            </div> <!-- content-wrapper -->
+            </div> <!-- main-panel -->
+
+
           <!-- content-wrapper ends -->
 
- 
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</di>
-</div>
-</div>     
-<!--sign out-->
+          <!--sign out-->
 <div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content text-center rounded-3 shadow">
@@ -289,39 +208,5 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
-    <script>
-function loadStudents(searchValue = "") {
-  fetch(`/search_teachers?query=${searchValue}`)
-    .then(response => response.json())
-    .then(data => {
-      const teacherList = document.getElementById("teacherList");
-      teacherList.innerHTML = "";
-
-      data.forEach(teacher => {
-        const teacherHTML = `
-          <div class="form-check mb-1 px-2" style="width: 100%; max-width: 450px;">
-            <input class="form-check-input me-2" type="checkbox" name="teacher_ids" value="${teacher.teacher_id}" id="teacher_${teacher.teacher_id}">
-            <label class="form-check-label" for="teacher_${teacher.teacher_id}">
-              <i>${teacher.teacher_id}</i>, ${teacher.last_name} ${teacher.first_name} ${teacher.middle_name}
-            </label>
-          </div>
-        `;
-        teacherList.insertAdjacentHTML('beforeend', teacherHTML);
-      });
-    });
-}
-
-// Load all teachers on page load
-document.addEventListener("DOMContentLoaded", function () {
-  loadStudents(); // empty query → fetch all teachers
-});
-
-// Load teachers when typing in the search box
-document.getElementById("teacherSearch").addEventListener("input", function () {
-  loadStudents(this.value);
-});
-</script>
-
-
   </body>
 </html>

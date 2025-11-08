@@ -8,9 +8,9 @@ DEVICE_ID = '68e5fdabc2046740cec292e6'
 
 
 #Notification
-Number = '09278826869' #fetch number of guardian here starts with 0
-Name= 'Richard' #fetch student name here
-Time= '9:00' #fetch time attendance was taken
+# Number = '09278826869' #fetch number of guardian here starts with 0
+# Name= 'Richard' #fetch student name here
+# Time= '9:00' #fetch time attendance was taken
 # AttendanceNotif = requests.post(
   
 #     f'{BASE_URL}/gateway/devices/{DEVICE_ID}/send-sms',
@@ -31,8 +31,8 @@ def send_attendance_sms(guardian_number, student_name, time_in):
 
     # Convert number to international format if needed
     formatted_number = guardian_number
-    if guardian_number.startswith("0"):
-        formatted_number = "+63" + guardian_number[1:]
+    # if guardian_number.startswith("0"):
+    #     formatted_number = "+63" + guardian_number[1:]
 
     message = f"{student_name} was marked present at {time_in}."
 

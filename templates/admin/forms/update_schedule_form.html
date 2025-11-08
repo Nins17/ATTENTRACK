@@ -38,30 +38,36 @@
           </button>
 
           <ul class="navbar-nav navbar-nav-right">
-             <li class="nav-item d-none d-lg-block full-screen-link">
-              <a class="nav-link" title="Enter Fullscreen">
-                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
-              </a>
-            </li>
             <li class="nav-item nav-profile dropdown">
+              {%for info in logged_teacher%}
               <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="nav-profile-img">
-                  <img src="{{ logged_teacher[1] }}" alt="image">
+                  <img src="{{info[1]}}" alt="image">
                   <span class="availability-status online"></span>
                 </div>
                 <div class="nav-profile-text">
-                  <p class="mb-1 text-black">Teacher {{ logged_teacher[2] }}</p>
+                  <p class="mb-1 text-black">Teacher {{info[2]}}</p>
                 </div>
               </a>
+              {%endfor%}
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="#">
+                  <i class="mdi mdi-account-key me-2 text-success"></i> Profile </a>
                 <div class="dropdown-divider"></div>
-                <button class="nav-link cursor-pointer" title="Log Out" data-bs-toggle="modal" data-bs-target="#signout">
-                <i class="mdi mdi-logout me-2 text-primary"></i> Signout
-              </button>
+                <a class="dropdown-item" href="/sign_out">
+                  <i class="mdi mdi-logout me-2 text-primary"></i> Signout </a>
               </div>
             </li>
-
-           
+            <li class="nav-item d-none d-lg-block full-screen-link">
+              <a class="nav-link">
+                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-logout d-none d-lg-block">
+              <a class="nav-link" href="/">
+                <i class="mdi mdi-power"></i>
+              </a>
+            </li>
            
           </ul>
           <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
@@ -72,44 +78,41 @@
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/_sidebar.html -->
-        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+     <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
             <li class="nav-item">
-              <a class="nav-link" href="/user_home">
+              <a class="nav-link" href="/admin/admin_home">
 
                 <span class="menu-title" style="color: #558B2F;">Home</span>
                 <i class="mdi mdi-home menu-icon " style="color: #558B2F;"></i>
               </a>
             </li>
             
-                      <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
                 <span class="menu-title">Records</span>
                 <i class="mdi mdi-table-large menu-icon"></i>
               </a>
               <div class="collapse" id="icons">
                 <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('attendance_record')}}">Attendance Record</a>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.attendance_records') }}">Attendance Records</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('view_student_list')}}">Student List</a>
+                    <a class="nav-link" href="{{ url_for('admin.student_list') }}">Student List</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('class_schedules')}}">Schedules</a>
+                    <a class="nav-link" href="{{ url_for('admin.class_schedule_list')}}">Schedules</a>
                   </li>
                 </ul>
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="" aria-expanded="false" aria-controls="tables">
-                <span class="menu-title">Attendace</span>
-                <i class="mdi mdi-calendar-check menu-icon"></i>
+              <a class="nav-link" href="{{ url_for('admin.registered_teacher_list')}}" aria-expanded="false" aria-controls="tables">
+                <span class="menu-title">Registered Teachers</span>
+                <i class="mdi mdi-account-check menu-icon"></i>
               </a>
             </li>
-            
-            
-            
           </ul>
         </nav>
         <!-- partial -->
@@ -117,8 +120,8 @@
           <div class="content-wrapper">
             <div class="page-header">
               <div class="d-flex">
-              <a href="/user_home" style="text-decoration:none;"><h3 class="page-title">
-                <span class="page-title-icon bg-gradient-primary text-white me-2">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+                <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
                 </span>
               </h3></a>
@@ -137,54 +140,105 @@
                 </span>
               </h3>
             </a>
-          </div>
-              
-              
+              <button type="button" class=" btn d-inline-flex align-items-center btn-gradient-dark text-white px-3 py-2 rounded border-0 fs-6" >
+                <i class="mdi mdi-arrow-left-bold"></i><i class="mdi mdi-calendar-multiple-check fs-6 fw-light me-2"></i>
+                <a href="/admin/class_schedule_list" style="text-decoration:none; color:white;"><h3 class="page-title">
+                 Go to Class Schedules
+                </a>
+              </button>
+            </div>
             </div>
             <div class="row"> 
-              <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Class Schedules</h4>
-                    <div class="table-responsive">
-                      <table class="table table-striped">
-                        <thead >
-                        <tr>
-                          <th class="font-weight-bold text-primary"><b> List of Students</b> </th>
-                          <th class="font-weight-bold text-primary"><b>Class ID</b></th>
-                          <th class="font-weight-bold text-primary"> <b>Grade level</b></th>
-                          <th class="font-weight-bold text-primary"><b> Section</b></th>
-                          <th class="font-weight-bold text-primary"><b> Subject </b></th>
-                          <th class="font-weight-bold text-primary"><b> Schedule </b></th>
-                          <th class="font-weight-bold text-primary"><b> Start Time</b> </th>
-                          <th class="font-weight-bold text-primary"><b> End Time </b></th>
-                          <th class="font-weight-bold text-primary"><b> Number of Students </b></th>
-                          <th class="font-weight-bold text-primary"><b> Teacher In-Charge</b> </th>
+              <div class="col-lg-12 grid-margin stretch-card">   
+              <div class="content-wrapper">         
+                <div class="col-12 col-md-10 col-lg-8 mx-auto">
+                  <div class="card mx-auto" style="width:500px;">
+                    <div class="card-body" >
+                      <h4 class="card-title fw-bold"> UPDATE SCHEDULE INFORMATION</h4>
+                      {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <p class="mb-1"
+                            style="display:fix;font-size:10px; width:200px; height:25px;{% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
+                                <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                      <p class="card-description " style="font-size:10px;">*Please fill the information needed</p>
+                      <form action="/admin/update_sched" method="POST" class="forms-sample text-primary ">
+                        <div class="form-group mb-3">
+                          <label class="text-primary" for="classGradeLevel">
+                            Grade Level <span class="text-danger"> * </span>
+                          </label>
+                          <select class="form-select bg-light " id="classGradeLevel" name="classGradeLevel" style="font-size: 0.85rem; padding: 0.25rem 0.5rem; width:180px; height: auto;" Required>
+                            <option value="{{sched[1]}}" selected>{{sched[1]}}</option>
+                            <option value="Kindergarten">Kindergarten</option>
+                            <option value="Grade 1">Grade 1</option>
+                            <option value="Grade 2">Grade 2</option>
+                            <option value="Grade 3">Grade 3</option>
+                            <option value="Grade 4">Grade 4</option>
+                            <option value="Grade 5">Grade 5</option>
+                            <option value="Grade 6">Grade 6</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                          </select>
+                        </div>
                         
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for scheds in class_scheds %}
-                        <tr>
-                          <td style="font-size:15px;"><a href="{{ url_for('view_students_by_schedule', schedule_id=scheds[0]) }}" style="text-decoration: none; color: inherit;">
-                                                      <button type="button" class="d-inline-flex align-items-center bg-gradient-primary text-white px-2 py-2  rounded border-0 ">
-                                                        View
-                                                      </button>
-                                                      </a>
-                          </td>
-                          <td  class="text-secondary"> 000{{scheds[0]}}</td>
-                          <td style="font-size:12px;"> <i>{{scheds[1]}} </i> </td>
-                          <td style="font-size:12px;"> <i>{{scheds[2]}}</i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[3]}}</i></td>
-                          <td style="font-size:12px;"> <i>{{scheds[4]}} </i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[5]}}</i> </td>
-                          <td style="font-size:12px;"> <i>{{scheds[6]}}</i></td>
-                          <td style="font-size:12px;"> <i> {{scheds[7]}}</i></td>
-                          <td style="font-size:12px;"> <i>{{scheds[8]}} </i></td>
-                        </tr>
-                       {% endfor %}
-                      </tbody>
-                    </table>
+                        <div class="form-group mb-3 text-primary" >
+                          <label for="class_section">Class Section</label>
+                          <input type="text" class="form-control rounded bg-light" id="class_section" name="class_section" placeholder="Enter Section Name" value="{{sched[2]}}" >
+                        </div>
+                        <div class="form-group mb-3">
+                          <label for="class_subject">Subject</label>
+                          <input type="text" class="form-control rounded bg-light" id="class_subject" name="class_subject" placeholder="Enter Subject" value="{{sched[3]}}">
+                        </div>
+                        <div class="form-group mb-3">
+                          <label class="text-primary" for="class_schedule">
+                            Schedule <span class="text-danger"> * </span>
+                          </label>
+                          <select class="form-select bg-light" id="class_schedule " name="class_schedule" style="font-size: 0.85rem; padding: 0.25rem 0.5rem; width:180px; height: auto;" Required>
+                            <option value="{{sched[4]}}"selected>{{sched[4]}}</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                          </select>
+                        </div>
+                        <div class="form-group mb-3">
+                          <label class="text-primary" for="class_start_time">
+                            Start Time <span class="text-danger">*</span>
+                          </label>
+                          <input type="time" class="form-control rounded w-50" id="class_start_time" name="class_start_time" required
+                          style="height: 32px; padding: 4px 8px; font-size: 0.875rem;" value="{{sched[5]}}">
+                        </div>
+                        <div class="form-group mb-3">
+                          <label class="text-primary" for="class_end_time">
+                            End Time <span class="text-danger">*</span>
+                          </label>
+                          <input type="time" class="form-control rounded w-50" id="class_end_time" name="class_end_time" required
+                          style="height: 32px; padding: 4px 8px; font-size: 0.875rem;" value="{{sched[6]}}">
+                        </div>
+                        <div class="form-group mb-3">
+                          <label class="text-primary" for="teacher_id">
+                            Teacher <span class="text-danger"> * </span>
+                          </label>
+                          <select class="form-select" id="teacher_id" name="teacher_id" style="font-size: 0.85rem; padding: 0.25rem 0.5rem; width:180px; height: auto;" Required>
+                           <option value="{{sched[9]}}" selected>{{teacher_name}}</option>
+                            {% for teacher in selection_teacher%} 
+                            <option value="{{teacher[0]}}">{{teacher[4]}}, {{teacher[2]}} {{teacher[3]}} {{teacher[5]}}</option>
+                            {%endfor%}
+                          </select>
+                        </div>
+                        <input type="submit" name="submit" value="Add Schedule" class="btn btn-gradient-primary me-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -282,41 +336,6 @@
 </div>
 
 </div>     
-
-</di><!--sign out-->
-<div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content text-center rounded-3 shadow">
-      
-      <div class="modal-body p-3">
-        <!-- Icon inside a circle -->
-        <div class="d-flex justify-content-center mb-2">
-          <div class="rounded-circle d-flex align-items-center justify-content-center" 
-               style="width: 55px; height: 55px; background-color: rgba(117, 125, 107, 0.51);">
-            <i class="mdi mdi-progress-alert" style="font-size: 28px; color:rgb(88, 15, 15);"></i>
-          </div>
-        </div>
-
-        <!-- Title -->
-        <h6 class="fw-bold text-dark mb-2">Confirm Sign Out</h6>
-        <p class="text-muted small mb-3">Are you sure you want to sign out?</p>
-
-        <!-- Buttons -->
-        <div class="d-flex justify-content-center gap-2">
-          <button type="button" class="btn btn-outline-dark btn-sm px-3 py-1" data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <a href="{{ url_for('sign_out') }}" 
-             class="btn btn-sm  px-3 py-1 text-white" 
-             style=" background-color: rgba(56, 74, 34, 0.94); border-color:rgb(34, 34, 33);">
-            Yes, Sign Out
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
                        <!-- MODAL ends -->
           <!-- partial:partials/_footer.html -->
           <footer class="footer">

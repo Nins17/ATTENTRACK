@@ -180,8 +180,9 @@
                           <th class="font-weight-bold text-primary"><b>Time</b></th>
                           <th class="font-weight-bold text-primary"> <b>Number of Students</b></th>
                           <th class="font-weight-bold text-primary"><b>Teacher Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Add Student to Schedule</b> </th>
-                          <th class="font-weight-bold text-primary"><b> Remove Schedule</b> </th>
+                          <th class="font-weight-bold text-muted"><b> Add Student to Schedule</b> </th>
+                          <th class="font-weight-bold text-muted"><b> Update Schedule</b> </th>
+                          <th class="font-weight-bold text-muted"><b> Remove Schedule</b> </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -209,9 +210,16 @@
                             </td>
 
                             <td>
+                              <a href="{{ url_for('admin.update_sched_form', sched_id=sched[0]) }}"
+                                class="btn bg-gradient-primary text-white px-3 py-2 rounded border-0">
+                                <span class="mdi mdi-account-convert"> Update</span> 
+                              </a>
+                            </td>
+
+                            <td>
                               <a href="{{ url_for('admin.remove_sched_confirmation', sched_id=sched[0]) }}"
                                 class="btn bg-gradient-danger text-white px-3 py-2 rounded border-0">
-                                <span class="mdi mdi-account-remove"> Delete Sched</span> 
+                                <span class="mdi mdi-account-remove"> Delete</span> 
                               </a>
                             </td>
                         </tr>

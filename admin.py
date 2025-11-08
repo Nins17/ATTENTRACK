@@ -301,6 +301,151 @@ def registered_teacher_list():
     else:
         return not_logged()
 
+@admin.route('/update_teacher_form/<int:teacher_id>',methods=["POST", "GET"])
+def update_teacher_form(teacher_id):
+    if session.get('admin_logged_in')==True:
+        session['update_teacher_id'] = teacher_id
+        cursor, conn = get_db_cursor()
+        photo = request.args.get('photo')
+       
+        query = """
+            SELECT *
+            FROM teacher_accounts
+            WHERE teacher_id =%s
+        """
+        cursor.execute(query,(teacher_id))
+        teacher_info = cursor.fetchone()
+        
+        cursor.close() 
+      
+        return render_template("admin/forms/update_teacher_form.html",teacher_info=teacher_info, photo = request.args.get('photo'))
+    else:
+        return not_logged()
+
+@admin.route('/update_teacher', methods=['POST'])
+def update_teacher():
+    if not session.get('admin_logged_in'):
+        return not_logged()
+
+    teacher_id = session.get('update_teacher_id')
+    if not teacher_id:
+        flash("No teacher selected for update.", "error")
+        return redirect(url_for('admin.teacherlist'))
+
+    cursor, conn = get_db_cursor()
+
+    # Get form data
+    new_teacher_id =request.form.get('teacher_id')
+    teacher_fname = request.form.get('teacher_first_name')
+    teacher_mname = request.form.get('teacher_middle_name')
+    teacher_lname = request.form.get('teacher_last_name')
+    teacher_suffix = request.form.get('teacher_suffix')
+        
+    UPLOAD_FOLDER = 'static/ADMIN/teacher_profpic'
+    if new_teacher_id:
+        old_photo_path = os.path.join(UPLOAD_FOLDER, f"{teacher_id}.jpg")
+        new_TI_filename = f"{new_teacher_id}.jpg"
+        new_TI_path = os.path.join(UPLOAD_FOLDER, new_TI_filename)
+        os.rename(old_photo_path, new_TI_path)
+        
+            
+    camera_photo = request.form.get('captured_photo')
+    uploaded_file = request.files.get('teacher_photo')
+
+    
+    final_photo = f"static/ADMIN/teacher_profpic/{new_TI_filename}"
+
+    # If camera photo exists, rename it with teacher ID
+    if camera_photo:
+    # Full path of the captured photo
+        original_path = os.path.join(UPLOAD_FOLDER, camera_photo)
+
+        if os.path.exists(original_path):
+            # Delete any existing teacher photo with any extension
+            for ext in ["jpg", "jpeg", "png", "gif"]:
+                old_photo = os.path.join(UPLOAD_FOLDER, f"{teacher_id}.{ext}")
+                if os.path.exists(old_photo):
+                    os.remove(old_photo)
+
+            # Rename the captured photo to teacher_id.jpg
+            new_filename = f"{new_teacher_id}.jpg"
+            new_path = os.path.join(UPLOAD_FOLDER, new_filename)
+            os.rename(original_path, new_path)
+
+            final_photo = f"static/ADMIN/teacher_profpic/{new_filename}"
+
+    # If manually uploaded photo
+    elif uploaded_file and uploaded_file.filename != "":
+        photo_ext = uploaded_file.filename.rsplit('.', 1)[1]
+        photo_filename = f"{new_teacher_id}.{photo_ext}"
+        upload_path = os.path.join(UPLOAD_FOLDER, photo_filename)
+        uploaded_file.save(upload_path)
+        final_photo = f"static/ADMIN/teacher_profpic/{photo_filename}"
+
+  
+    cursor.execute("""
+        UPDATE teacher_accounts
+        SET teacher_id=%s,
+            teacher_fname = %s,
+            teacher_mname = %s,
+            teacher_lname = %s,
+            teacher_suffix = %s,
+            teacher_profile = COALESCE(%s, teacher_profile)
+        WHERE teacher_id = %s
+    """, ( int(new_teacher_id),teacher_fname, teacher_mname, teacher_lname, teacher_suffix,
+       final_photo, teacher_id
+    ))
+    cursor.execute("""
+        UPDATE class_schedules
+        SET teacher_id=%s
+        WHERE teacher_id = %s
+    """, ( int(new_teacher_id),teacher_id))
+
+    conn.commit()
+    cursor.close()
+
+    flash("Teacher information updated successfully!", "success")
+    return redirect(url_for('admin.registered_teacher_list'))
+
+@admin.route('/remove_teacher_confirmation/<int:teacher_id>')
+def remove_teacher_confirmation(teacher_id):
+    if session.get('admin_logged_in')==True:
+        cursor,conn = get_db_cursor()
+        cursor.execute('SELECT * FROM teacher_accounts WHERE teacher_id = %s',[teacher_id])
+        teacher_info=cursor.fetchone()
+        
+        if teacher_info:
+            return render_template("admin/remove_teacher_confirmation.html",teacher_info=teacher_info)
+        else:
+            flash("cant find teacher",'error')
+            return redirect(url_for('admin.registered_teacher_list'))
+    else:
+        return not_logged()
+    
+@admin.route('/remove_teacher/<int:teacher_id>',  methods=["POST", "GET"])
+def remove_teacher(teacher_id):
+    if request.method == "POST":
+        cursor,conn = get_db_cursor()
+        cursor.execute('SELECT * FROM teacher_accounts WHERE teacher_id = %s',[teacher_id])
+        teacher=cursor.fetchone()
+        
+        if teacher:
+            file_path = teacher[1]  
+            full_path = os.path.join('static/files', file_path)  
+            
+            # Delete the photo in path
+            if os.path.exists(full_path):
+                os.remove(full_path)
+                
+        
+        cursor.execute("DELETE FROM teacher_accounts WHERE teacher_id = %s", (teacher_id,))
+        conn.commit()
+        
+        
+        flash("Teacher Removed",'ERROR')
+        cursor.close()
+        return redirect(url_for('admin.registered_teacher_list'))
+    
 @admin.route('/add_schedule_page',methods=["POST", "GET"])
 def add_schedule_page():
     if session.get('admin_logged_in')==True:
@@ -359,6 +504,79 @@ def add_schedule():
     else:    
         flash("Failed Request", "error")
         return redirect(url_for('admin.add_schedule_page'))    
+ 
+@admin.route('/update_sched_form/<int:sched_id>', methods=["POST", "GET"])
+def update_sched_form(sched_id):
+    if session.get('admin_logged_in')==True:
+        session["update_sched_id"] = sched_id
+        cursor,conn = get_db_cursor()
+        cursor.execute('SELECT * FROM class_schedules WHERE schedule_id = %s',[sched_id])
+        sched=cursor.fetchone()
+        print(sched)
+        cursor.execute('SELECT teacher_lname, teacher_fname, teacher_mname, teacher_suffix FROM teacher_accounts WHERE teacher_id = %s',(sched[9],))
+        teacher_info=cursor.fetchone()
+        teacher_name = f"{teacher_info[0]}, {teacher_info[1]} {teacher_info[2]} {teacher_info[3]}"
+        print(teacher_name)
+        cursor.execute('SELECT * FROM teacher_accounts')
+        selection_teacher=cursor.fetchall()
+        session["update_sched_teacher_id"] = sched[9]
+        print(selection_teacher)
+        
+        
+        if sched:
+            return render_template("admin/forms/update_schedule_form.html",sched=sched, teacher_name=teacher_name,selection_teacher=selection_teacher)
+    else:
+        return not_logged()  
+    
+@admin.route('/update_sched', methods=["POST", "GET"])
+def update_sched():
+    cursor, conn = get_db_cursor()
+    if request.method == "POST":
+        class_gradeLevel = str(request.form.get("classGradeLevel"))
+        class_section = str(request.form.get("class_section"))
+        class_subject = str(request.form.get("class_subject"))
+        class_schedule = str(request.form.get("class_schedule"))
+        class_start_time = str(request.form.get("class_start_time"))
+        class_end_time = str(request.form.get("class_end_time"))
+        teacher_id = int(request.form.get("teacher_id"))
+
+        cursor.execute('SELECT * FROM teacher_accounts WHERE teacher_ID = %s', (teacher_id,))
+        teacher_info = cursor.fetchone()
+        teacher_name = f"{teacher_info[4]}, {teacher_info[2]} {teacher_info[3]} {teacher_info[5]}"
+        
+
+        check_sched = """
+            SELECT * FROM class_schedules
+            WHERE schedule_id =%s
+        """
+        cursor.execute(check_sched, (session.get('update_sched_id'),))
+        existing_sched = cursor.fetchone()
+        if existing_sched:
+            query = """
+                    UPDATE class_schedules
+                    SET
+                        grade_level = %s,
+                        section = %s,
+                        subject = %s,
+                        schedule = %s,
+                        start_time = %s,
+                        end_time = %s,
+                        teacher = %s,
+                        teacher_id = %s
+                    WHERE schedule_id = %s
+                """
+            values=(class_gradeLevel, class_section, class_subject, class_schedule, class_start_time, class_end_time,teacher_name,teacher_id, session.get('update_sched_id'))
+            cursor.execute(query,values)
+            conn.commit()
+            cursor.close()
+            flash("Class schedule successfully Updated", "success")
+            return redirect(url_for('admin.update_sched_form',sched_id = session.get('update_sched_id')))    
+        else:    
+            flash("Schedule Update Failed", "error")
+            return redirect(url_for('admin.update_sched_form',sched_id = session.get('update_sched_id'))) 
+    else:    
+        flash("Failed Request", "error")
+        return redirect(url_for('admin.update_sched_form',sched_id = session.get('update_sched_id')))    
     
 @admin.route('/class_schedule_list')#list of all schedules
 def class_schedule_list():
@@ -664,6 +882,13 @@ def remove_student_confirmation(student_id):
         student=cursor.fetchone()
         
         if student:
+            file_path = student[1]  
+            full_path = os.path.join('static/files', file_path)  
+            
+            # Delete the photo in path
+            if os.path.exists(full_path):
+                os.remove(full_path)
+                
             return render_template("admin/confirmation.html",student_info=student)
         else:
             flash("cant find student",'error')
@@ -706,8 +931,11 @@ def remove_student(student_id):
         flash("Student removed successfully.", "success")
         return redirect(url_for('admin.student_list'))
 
+
+        
+        
                         
-####OTHER ROUTES###Cameras
+####CAMERA ROUTES###
 @admin.route('/update_student/camera/<int:student_id>')
 def update_studentcamera(student_id):
     cam = cv2.VideoCapture(0)
@@ -804,3 +1032,46 @@ def teacher_camera():
     cam.release()
     cv2.destroyAllWindows()
     return redirect(url_for('admin.registerteacherform'))
+
+@admin.route('/update_teacher_camera/<int:teacher_id>')
+def update_teacher_camera(teacher_id):
+    if not session.get('admin_logged_in'):
+        return not_logged()
+
+    cam = cv2.VideoCapture(0)
+
+    if not cam.isOpened():
+        flash("Camera not detected!", "error")
+        return redirect(url_for('admin.update_teacher_form', teacher_id=teacher_id))
+
+    while True:
+        ret, frame = cam.read()
+        frame = cv2.flip(frame, 2)
+        if not ret:
+            flash("Failed to read from camera.", "error")
+            break
+
+        cv2.imshow("Press S to Save | Q to Quit", frame)
+        key = cv2.waitKey(1) & 0xFF
+
+        # Press 's' to save image
+        if key == ord('s'):
+            photo_filename = datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg"
+            save_path = os.path.join("static/ADMIN/teacher_profpic", photo_filename)
+            cv2.imwrite(save_path, frame)
+
+            flash("Photo captured successfully!", "success")
+            cam.release()
+            cv2.destroyAllWindows()
+
+            # Pass captured photo filename to form
+            return redirect(url_for('admin.update_teacher_form', teacher_id=teacher_id, photo=photo_filename))
+        
+        # Press 'q' to quit camera without saving
+        elif key == ord('q'):
+            break
+
+    cam.release()
+    cv2.destroyAllWindows()
+    flash("Camera closed without saving.", "info")
+    return redirect(url_for('admin.update_teacher_form', teacher_id=teacher_id))

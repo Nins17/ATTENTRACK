@@ -21,16 +21,14 @@
     <link rel="stylesheet" href="../static/assets/css/style.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
- 
-    
   </head>
   <body>
-    <div class="container-scroller">9876
+    <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/admin/admin_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
-
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/admin_home"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+         
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-stretch">
           <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
@@ -39,22 +37,11 @@
 
           <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item nav-profile dropdown">
-              {%for info in logged_teacher%}
-              <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <div class="nav-profile-img">
-                  <img src="" alt="image">
-                  <span class="availability-status online"></span>
-                </div>
-                <div class="nav-profile-text">
-                  <p class="mb-1 text-black">Teacher {{info[1]}}</p>
-                </div>
-              </a>
-              {%endfor%}
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
                 <a class="dropdown-item" href="#">
                   <i class="mdi mdi-account-key me-2 text-success"></i> Profile </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/sign_out">
+                <a class="dropdown-item" href="/">
                   <i class="mdi mdi-logout me-2 text-primary"></i> Signout </a>
               </div>
             </li>
@@ -83,11 +70,10 @@
             <li class="nav-item">
               <a class="nav-link" href="/admin/admin_home">
 
-                <span class="menu-title" >Home</span>
-                <i class="mdi mdi-home menu-icon " ></i>
+                <span class="menu-title" style="color: #558B2F;">Home</span>
+                <i class="mdi mdi-home menu-icon " style="color: #558B2F;"></i>
               </a>
             </li>
-            
             
             <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
@@ -114,13 +100,15 @@
                 <i class="mdi mdi-account-check menu-icon"></i>
               </a>
             </li>
+            </li>
           </ul>
         </nav>
         <!-- partial -->
         <div class="main-panel">
-          <div class="content-wrapper">
-            <div class="page-header">
-              <div class="d-flex">
+            <div class="content-wrapper">
+              <div class="page-header">
+                <nav aria-label="breadcrumb">
+                  <div class="d-flex">
               <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
                 <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
@@ -142,16 +130,16 @@
               </h3>
             </a>
             </div>
-              <button type="button" class="d-inline-flex align-items-center bg-gradient-primary text-white px-3 py-2 rounded border-0 fs-6" >
-                <a style="color:white; text-decoration:none;" href="{{url_for('admin.registerteacherform')}}">Register Teacher</a>
-              </button>
-            
-            </div>
-            <div class="row"> 
-              <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">List of Registered Teachers</h4>
+                
+              </div>
+              <nav aria-label="breadcrumb">
+                  <h3 class="page-title"> Register Teacher Form </h3>
+                </nav>
+                <div class="col-6 m-1 stretch-card mx-auto">
+                  <div class="card">
+                    <div class="card-body">
+                      <h4 class="card-title">TEACHER INFORMATION</h4>
+                      <p class="card-description"> Please fill the information needed</p>
                        {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -162,66 +150,65 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                    <div class="table-responsive">
-                      <table class="table table-striped">
-                        <thead >
-                        <tr>
-                          <th class="font-weight-bold text-primary"><b>Teacher's ID</b></th>
-                          <th class="font-weight-bold text-primary"><b> </b></th>
-                          <th class="font-weight-bold text-primary"><b>First Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Middle Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Last Name</b></th>
-                          <th class="font-weight-bold text-primary"><b> Suffix</b></th>
-                          <th class="font-weight-bold text-muted "><b> Action</b></th>
-                          <th class="font-weight-bold text-muted "><b> Remove Teacher</b></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for teacher in  registered_teacher_lists %}
-                        <tr>
-                          <td  class="text-secondary"><i> {{teacher[0]}}</i></td>
-                          <td  class="text-secondary"> <img src="{{teacher[1]}}" alt="image"></td>
-                          <td style="font-size:12px;">  {{teacher[2] }} </td>
-                          <td  class="text-black"> {{ teacher[3] }}</td>
-                          <td  class="text-black">  {{ teacher[4] }}</td>
-                          <td  class="text-black">  {{ teacher[5] }}</td>
-                          <td>
-                              <a href="{{ url_for('admin.update_teacher_form', teacher_id=teacher[0]) }}"
-                                class="btn bg-gradient-primary  text-white px-3 py-2 rounded border-0">
-                                <span class="mdi mdi-account-convert">  Update Teacher</span> 
-                              </a>
-                            </td>
-                            <td>
-                             <a href="{{ url_for('admin.remove_teacher_confirmation', teacher_id=teacher[0]) }}"
-                                class="btn bg-gradient-danger  text-white px-3 py-2 rounded border-0">
-                                <span class="mdi mdi-account-remove"> Delete Teacher </span> 
-                              </a>
-                            </td>
-                        </tr>
-                       {% endfor %}
-                      </tbody>
-                    </table>
+                      <form class="forms-sample" action="/admin/update_teacher" method="POST" enctype="multipart/form-data">
+
+                                {% if photo %}
+                                  <img src="{{ url_for('static', filename='ADMIN/teacher_profpic/' ~ photo) }}" width="120" class="rounded-circle border border-primary border-3 mb-2" alt="New Photo">
+                                  <input type="hidden" name="captured_photo" value="{{ photo }}">
+                                {% else %}
+                                  <img src="../{{ teacher_info[1] }}" width="120" class="rounded-circle border border-primary border-3 mb-2" alt="Current Photo">
+                                {% endif %}
+                                <div class="form-group">
+                                  <label>Upload or Capture Photo</label>
+                                  <div class="d-flex align-items-center">
+                                    <input type="file" class="form-control me-2" id="teacher_photo" name="teacher_photo" accept="image/*">
+                                    <span class="me-2">or</span>
+                                    <button type="button" class="btn btn-gradient-secondary text-light btn-sm"
+                                            onclick="window.location.href='/admin/update_teacher_camera/{{ teacher_info[0] }}'">
+                                      <i class="mdi mdi-camera"></i> Open Camera
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="teacher_id">Teacher ID: <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="teacher_id" name="teacher_id"
+                                        value="{{ teacher_info[0] }}" >
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="teacher_first_name">First Name: <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="teacher_first_name" name="teacher_first_name"
+                                        value="{{ teacher_info[2] }}">
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="teacher_middle_name">Middle Name: <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="teacher_middle_name" name="teacher_middle_name"
+                                        value="{{ teacher_info[3] }}">
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="teacher_last_name">Last Name: <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="teacher_last_name" name="teacher_last_name"
+                                        value="{{ teacher_info[4] }}">
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="teacher_suffix">Suffix (ex. Jr):</label>
+                                  <input type="text" class="form-control" id="teacher_suffix" name="teacher_suffix"
+                                        placeholder="*If none, leave empty" value="{{ teacher_info[5] }}">
+                                </div>
+
+                                <button type="submit" class="btn btn-gradient-primary me-2">Update</button>
+                                <a href="{{ url_for('index') }}" class="btn btn-light">Cancel</a>
+                              </form>
+
+                    </div>
                   </div>
                 </div>
-              </div>
-
             </div>
-            
-          </div>
-          <!-- content-wrapper ends -->
-
- 
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</di>
-</div>
-</div>     
-<!--sign out-->
+            <!--sign out-->
 <div class="modal fade" id="signout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content text-center rounded-3 shadow">
@@ -254,19 +241,16 @@
     </div>
   </div>
 </div>
-                       <!-- MODAL ends -->
-          <!-- partial:partials/_footer.html -->
-          <footer class="footer">
-            <div class="d-flex flex-column align-items-center">
-              <p>© <span>Copyright</span> <strong style="color: #558B2F;" class="px-1 sitename">AttenTrack</strong> <span>All Rights Reserved</span></p>
-              <div class="credits">
-                Designed by F1 BOUND
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            <footer class="footer">
+              <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2023 <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="mdi mdi-heart text-danger"></i></span>
               </div>
-            </div>
-          </footer>
-          
-          <!-- partial -->
-        </div>
+            </footer>
+            <!-- partial -->
+          </div>
         <!-- main-panel ends -->
       </div>
       <!-- page-body-wrapper ends -->
@@ -289,39 +273,16 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
+
     <script>
-function loadStudents(searchValue = "") {
-  fetch(`/search_teachers?query=${searchValue}`)
-    .then(response => response.json())
-    .then(data => {
-      const teacherList = document.getElementById("teacherList");
-      teacherList.innerHTML = "";
-
-      data.forEach(teacher => {
-        const teacherHTML = `
-          <div class="form-check mb-1 px-2" style="width: 100%; max-width: 450px;">
-            <input class="form-check-input me-2" type="checkbox" name="teacher_ids" value="${teacher.teacher_id}" id="teacher_${teacher.teacher_id}">
-            <label class="form-check-label" for="teacher_${teacher.teacher_id}">
-              <i>${teacher.teacher_id}</i>, ${teacher.last_name} ${teacher.first_name} ${teacher.middle_name}
-            </label>
-          </div>
-        `;
-        teacherList.insertAdjacentHTML('beforeend', teacherHTML);
-      });
-    });
+function openCamera() {
+    const teacherId = document.getElementById('teacher_id').value;
+    if (!teacherId) {
+        alert('Please enter Teacher ID first.');
+        return;
+    }
+    window.location.href = `/admin/camera?teacher_id=${teacherId}`;
 }
-
-// Load all teachers on page load
-document.addEventListener("DOMContentLoaded", function () {
-  loadStudents(); // empty query → fetch all teachers
-});
-
-// Load teachers when typing in the search box
-document.getElementById("teacherSearch").addEventListener("input", function () {
-  loadStudents(this.value);
-});
 </script>
-
-
   </body>
 </html>

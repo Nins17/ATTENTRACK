@@ -10,12 +10,14 @@ from message import send_attendance_sms
 
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret_for_local")
+app.register_blueprint(admin, url_prefix="/admin")
+app.secret_key = "ams"
 
-app.config['MYSQL_DATABASE_USER'] = os.environ.get("MYSQL_USER", "root")
-app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get("MYSQL_PASSWORD", "Rootpassword@l03e1t3")
-app.config['MYSQL_DATABASE_DB'] = os.environ.get("MYSQL_DB", "ams")
-app.config['MYSQL_DATABASE_HOST'] = os.environ.get("MYSQL_HOST", "localhost")
+# MySQL Config
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Rootpassword@l03e1t3'
+app.config['MYSQL_DATABASE_DB'] = 'ams'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 # Initialize MySQL
 mysql.init_app(app)
@@ -484,4 +486,5 @@ def sign_out_admin():
     return redirect(url_for("index"))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)
+    app.run(debug=True)
+    
