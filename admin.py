@@ -1,16 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
-from flaskext.mysql import MySQL
+from mysql import mysql
 import os
 import csv
 import numpy as np
 import cv2
+import face_recognition
 from datetime import datetime
 
 # Create Blueprint
 admin = Blueprint("admin", __name__, static_folder="static", template_folder="templates")
-
-# MySQL is configured in main.py
-mysql = MySQL()
 
 SAVE_DIR = 'static/known_faces'
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -20,6 +18,13 @@ datetoday = datetime.now().strftime("%m_%d_%y")
 CSV_DIR = 'static/attendance_csv'
 os.makedirs(CSV_DIR, exist_ok=True)
 
+#inputs
+datetoday = datetime.now().strftime("%m_%d_%y") 
+yeartoday = datetime.now().year
+schoolyear = f"{yeartoday} - {yeartoday+1}"
+known_face_encodings = []
+known_face_names = []
+
 def get_db_cursor():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -27,6 +32,33 @@ def get_db_cursor():
 def not_logged():
     flash('Log in as admin first', 'error')
     return redirect(url_for('login_admin_form'))
+
+def load_known_faces():
+    #Load all student photos and average their encodings per studen.
+    global known_face_encodings, known_face_names
+    known_face_encodings.clear()
+    known_face_names.clear()
+
+    for student_folder in os.listdir(SAVE_DIR):
+        student_path = os.path.join(SAVE_DIR, student_folder)
+        if not os.path.isdir(student_path):
+            continue
+
+        encodings = []
+        # Loop through each photo of that student
+        for filename in os.listdir(student_path):
+            if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
+                img_path = os.path.join(student_path, filename)
+                image = face_recognition.load_image_file(img_path)
+                face_enc = face_recognition.face_encodings(image)
+                if face_enc:
+                    encodings.append(face_enc[0])
+
+        if encodings:
+            mean_encoding = np.mean(encodings, axis=0)
+            known_face_encodings.append(mean_encoding)
+            known_face_names.append(student_folder)  # folder name = student_id
+# Load all faces once when app starts
 
 
 
@@ -932,7 +964,7 @@ def remove_student(student_id):
         return redirect(url_for('admin.student_list'))
 
 
-        
+
         
                         
 ####CAMERA ROUTES###

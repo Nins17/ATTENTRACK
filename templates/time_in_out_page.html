@@ -23,85 +23,66 @@
     <link rel="stylesheet" href="../static/assets/css/style.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
-    <style>
-
-      
-    </style>
   </head>
-  <body>
+  <body style="background:linear-gradient( 109.6deg,rgba(125, 159, 97, 0.47) 30.2%,rgba(15, 96, 19, 0.67) )  ;">
     <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
-      
+      <nav class="navbar default-layout-navbar  shadow col-lg-12 col-12 p-0 fixed-top d-flex flex-row bg-transparent" >
+        <div class=" text-center navbar-brand-wrapper d-flex align-items-center justify-content-start bg-transparent">
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+         
+        </div>
+      </nav>
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
-  <div class=" content-wrapper d-flex justify-content-center align-items-center" style="min-height: 100vh;background:linear-gradient( 109.6deg,rgba(125, 159, 97, 0.47) 30.2%,rgba(15, 96, 19, 0.67) )  ;">
-
-    <!-- LEFT SIDE: Logo -->
-    <div class="p-0 col-6" >
-      <img src="{{ url_for('static', filename='assets/images/logo1.png') }}"
-           alt="logo"
-           style="width:80%; height:auto; display:block; ; margin-left:5%;padding:0;opacity:20%;">
-    </div>
-
-    <!-- RIGHT SIDE: Buttons -->
-    <div class="d-flex flex-column align-items-center gap-3 rounded-5 p-4"
-         style="height:100%; max-height:400px; max-width:370px; width:100%; background:white; box-shadow:0px 6px 10px rgba(0, 0, 0, 0.22); margin-right:10%;margin-left:0;">
-   
-      <div style="margin-bottom:10px; padding-top:10%;">
-        <span style="font-size:1.8rem; font-weight:600;">Welcome to AttenTrack!</span>
-      </div>
-      <div id="clock" class="d-flex" style="margin-bottom:30px; padding-top:2%; max-width:350px">
-        <div class="cbg"> <h2 id="h">12</h2> </div> <h3>:</h3>
-        <div class="cbg"> <h2 id="m">20</h2> </div><h3>:</h3> 
-        <div class="cbg"> <h2 id="s">00</h2> </div> 
-        <div class="cbg" id="ap">AM </div> 
-      </div>
-      
-         
-         
-
-      {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
-          <div id="flash-messages" class="w-100 text-center">
-            {% for category, message in messages %}
-              <p class="mb-2" 
-                 style="font-size:14px; color:{% if category == 'error' %}red{% else %}rgba(21,157,0,0.91){% endif %};">
-                <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
-              </p>
-            {% endfor %}
+        <!-- partial:partials/_sidebar.html -->
+     
+        <!-- partial -->
+       
+            <div class="content-wrapper w-100 bg-transparent" style="min-height:100vh;"> 
+             
+              <a href="javascript:history.back()" class="me-3 ms-3">
+                  <i class="mdi mdi-arrow-left" style="font-size: 24px; color: black;"></i>
+              </a>
+                <div class="  card-body m-3 d-flex justify-content-center align-items-center " >
+               
+                    <div class="m-3 bg-white p-4 rounded-5  d-flex flex-column justify-content-center align-items-center gap-3" style="min-width: 500px; min-height: 300px;  box-shadow:0px 6px 10px rgba(0, 0, 0, 0.22);">
+                      <div class="text-center navbar-brand-wrapper align-items-center justify-content-start">
+                        <div><a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold">DATE AND TIME NOW: </a></div>
+                        <div id="clock" class="d-flex" style="margin-top:20px; margin-bottom:30px; padding-top:2%; max-width:350px">
+                          <div class="cbg"> <h2 id="h">12</h2> </div> <h3>:</h3>
+                          <div class="cbg"> <h2 id="m">20</h2> </div><h3>:</h3> 
+                          <div class="cbg"> <h2 id="s">00</h2> </div> 
+                          <div class="cbg" id="ap">AM </div> 
+                        </div>
+                      </div>
+                      {% with messages = get_flashed_messages(with_categories=True) %}
+                      {% if messages %}
+                        <div id="flash-messages">
+                        {% for category, message in messages %}
+                          <p class="mb-3 text-center"
+                            style="font-size: 14px; {% if category == 'error' %}color:red;{% else %}color:rgba(21, 157, 0, 0.91);{% endif %}">
+                            <b>{% if category == 'error' %}ERROR{% else %}Success{% endif %}</b>: {{ message }}
+                          </p>
+                        {% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endwith %}
+                      <a class="btn btn-lg btn-primary  rounded-5 " href="/time_in_out/take_attendance_cam">Start Taking Attendance</a>
+                      <div class="m-1 d-flex justify-content-center align-items-center gap-2 " style="width:75%; margin:auto;">
+                      </div>
+                    </div>
+                  </div>
+            </div>
           </div>
-        {% endif %}
-      {% endwith %}
-
-      <a href="/time_in_out/take_attendance_page" 
-         class="btn btn-lg btn-primary rounded-5 w-80 px-5"
-         style="font-size:1rem; width:250px;">
-        Time In/Out
-      </a>
-
-      <div class="w-250 px-3">
-        <div class="mb-2 text-center" style="font-size:11px; font-weight:700;opacity:50%;">Login as:</div>
-        <div class="d-flex gap-3 flex-wrap justify-content-center">
-          <a href="/login_teacher_form" 
-             class="btn btn-lg btn-gradient-secondary2 px-4 rounded-5"
-             style="font-size:0.8rem; white-space:nowrap;width:120px;">
-            Teacher
-          </a>
-          <a href="/admin/login_admin_form" 
-             class="btn btn-lg btn-gradient-secondary2 px-4 rounded-5"
-             style="font-size:0.8rem; white-space:nowrap;width:120px;">
-            Admin
-          </a>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-      
             <!-- content-wrapper ends -->
             <!-- partial:../../partials/_footer.html -->
-            
+            <footer class="footer">
+              <div class=" justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. All rights reserved.</span> 
+              </div>
+            </footer>
             <!-- partial -->
     
         <!-- main-panel ends -->
@@ -126,8 +107,11 @@
     <!-- Custom js for this page -->
     <script src="../static/assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
-    <script>
-       document.addEventListener("DOMContentLoaded", function(event) {
+    <!-- message disappers in 3 sec -->
+
+    <!--script for clock-->
+  <script>
+    document.addEventListener("DOMContentLoaded", function(event) {
     
         realTime();
 
@@ -158,7 +142,6 @@
       if (k < 10) { return "0" + k; } else { return k; } }
   </script>
 
-    <!-- message disappers in 3 sec -->
     <script>
       setTimeout(() => {
         let flashBox = document.getElementById("flash-messages");

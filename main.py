@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-from admin import admin,mysql,os
+from admin import admin,os
+from time_in_out import time_in_out
+from mysql import mysql
 import csv
 import numpy as np
 from datetime import datetime
@@ -18,6 +20,9 @@ app.config['MYSQL_DATABASE_HOST'] = os.environ.get("MYSQL_HOST", "localhost")
 
 # Initialize MySQL
 mysql.init_app(app)
+
+app.register_blueprint(admin, url_prefix="/admin")
+app.register_blueprint(time_in_out, url_prefix="/time_in_out")
 
 SAVE_DIR = os.path.join("static", "known_faces")
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -483,4 +488,4 @@ def sign_out_admin():
     return redirect(url_for("index"))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)
+    app.run(host='0.0.0.0', port=5000,debug=True)

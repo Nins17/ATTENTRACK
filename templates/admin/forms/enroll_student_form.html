@@ -65,7 +65,7 @@
         </div>
       </nav>
       <!-- partial -->
-      <div class="container-fluid page-body-wrapper">
+      <div class="container-fluid page-body-wrapper" style="height:100vh;overflow-y: auto;">
         <!-- partial:partials/_sidebar.html -->
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
@@ -105,41 +105,42 @@
           </ul>
         </nav>
         <!-- partial -->
-        <div class="main-panel">
-            <div class="content-wrapper">
+        <div class="main-panel" >
+            <div class="content-wrapper" >
               <div class="page-header">
                 <nav aria-label="breadcrumb">
                   <div class="d-flex">
-              <a href="/admin/admin_home" style="text-decoration:none;"><h3 class="page-title">
+              <a href="/admin/admin_home" style="text-decoration:none;"><h5 class="page-title">
                 <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-home"></i>
                 </span>
-              </h3></a>
+              </h5></a>
               <a href="javascript:history.back()" title="Back to previous" style="text-decoration:none;">
-                <h3 class="page-title">
+                <h5 class="page-title">
                 <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-arrow-left-bold"></i>
                 </span>
-              </h3>
+              </h5>
             </a>
               
               <a href="javascript:history.forward()" title="Go forward" style="text-decoration:none;">
-                <h3 class="page-title">
+                <h5 class="page-title">
                 <span class="page-title-icon bg-gradient-dark text-white me-2">
                   <i class="mdi mdi-arrow-right-bold"></i>
                 </span>
-              </h3>
+              </h5>
             </a>
             </div>
                 
               </div>
               <nav aria-label="breadcrumb">
-                <h3 class="page-title"> Enroll Student Form </h3>
+                
                 </nav>
                 <div class="col-6 m-1 stretch-card mx-auto">
-                  <div class="card">
-                    <div class="card-body">
-                      <h4 class="card-title">STUDENT INFORMATION</h4>
+                  <div class="card" style="height:100%" >
+                    <div class="card-body" >
+                      
+                      <h4 class="card-title"> Enroll Student Form</h4>
                       <p class="card-description"> Please fill the information needed</p>
                        {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
@@ -210,12 +211,7 @@
             </div>
             <!-- content-wrapper ends -->
             <!-- partial:../../partials/_footer.html -->
-            <footer class="footer">
-              <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2023 <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. All rights reserved.</span>
-                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="mdi mdi-heart text-danger"></i></span>
-              </div>
-            </footer>
+            
             <!-- partial -->
           </div>
         <!-- main-panel ends -->

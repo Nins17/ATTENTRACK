@@ -1,0 +1,200 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AttenTrack</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="../static/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../static/assets/vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="../static/assets/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="../assets/static/vendors/font-awesome/css/font-awesome.min.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="../static/assets/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../static/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles --> 
+    <link rel="stylesheet" href="../static/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="{{url_for('static',filename='assets/images/logo.png')}}" />
+  </head>
+  <body style="background:linear-gradient( 109.6deg,rgba(125, 159, 97, 0.47) 30.2%,rgba(15, 96, 19, 0.67) )  ; ">
+    <div class="container-scroller">
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar default-layout-navbar  shadow col-lg-12 col-12 p-0 fixed-top d-flex flex-row bg-transparent" >
+        <div class=" text-center navbar-brand-wrapper d-flex align-items-center justify-content-start bg-transparent">
+          <a class="navbar-brand brand-logo gradient-primary text-decoration-none font-weight-bold" href="/"><img src="{{url_for('static',filename='assets/images/logo.png')}}" style="width:70px;height:70px;padding:20px;" alt="logo" />AttenTRACK AMS</a>
+         
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+     
+        <!-- partial -->
+       
+            <div class="content-wrapper w-100 bg-transparent" style="min-height:80vh;"> 
+             
+              <a href="javascript:history.back()" class="me-3 ms-3">
+                  <i class="mdi mdi-arrow-left" style="font-size: 24px; color: black;"></i>
+              </a>
+                <div class="card-body m-0 d-flex flex-column justify-content-center align-items-center">
+                    <p id="status" class="mb-3 text-center rounded" style="color:white;background:rgb(3, 30, 2);padding:10px;width:auto;font-size:10px;">Click Scan To scan face</p>
+                    <div id="cam-wrapper" style="position: relative; width: 500px; height: 375px;">
+                        <video id="video"
+                            width="500"
+                            height="375"
+                            autoplay
+                            playsinline
+                            style="position:absolute; top:0; left:0; transform: scaleX(-1);">
+                        </video>
+
+                        <canvas id="canvas"
+                                width="500"
+                                height="375"
+                                style="position:absolute; top:0; left:0;">
+                        </canvas>
+                </div>
+                <button id="scanBtn"
+                        style="margin-top:15px; padding:10px 20px; font-size:16px;">
+                    Scan Face
+                </button>
+
+                    </div>
+                  </div>
+            </div>
+          </div>
+        </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            
+            <!-- partial -->
+    
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="../static/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="../static/assets/vendors/chart.js/chart.umd.js"></script>
+    <script src="../static/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../static/assets/js/off-canvas.js"></script>
+    <script src="../static/assets/js/misc.js"></script>
+    <script src="../static/assets/js/settings.js"></script>
+    <script src="../static/assets/js/todolist.js"></script>
+    <script src="../static/assets/js/jquery.cookie.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="../static/assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+    <!-- message disappers in 3 sec -->
+
+    
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const status = document.getElementById("status");
+    const scanBtn = document.getElementById("scanBtn");
+
+    // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => { status.textContent = "Camera error: " + err.message; });
+
+    // Draw guide box continuously
+    function drawGuideBox() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const size = 300;
+        const x = (canvas.width - size) / 2;
+        const y = (canvas.height - size) / 2;
+
+        ctx.strokeStyle = "green";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, size, size);
+
+        requestAnimationFrame(drawGuideBox);
+    }
+    drawGuideBox();
+
+    // Capture frame and send to backend when button clicked
+    scanBtn.addEventListener("click", async () => {
+        status.textContent = "Scanning...";
+
+        // Draw mirrored video frame into canvas
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        const frame = canvas.toDataURL("image/jpeg");
+
+        try {
+            const res = await fetch("/time_in_out/process_frame", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ img: frame })
+            });
+
+            const data = await res.json();
+
+            // Update status
+            if (data?.statuscat === "error") {
+                status.style.color = "rgb(255, 147, 147)"; // red
+                console.log("COLOR APPLIED: RED");
+            } else if (data?.statuscat === "ok") {
+                status.style.color = "rgb(178, 255, 147)"; // green
+                console.log("COLOR APPLIED: GREEN");
+            } else {
+                status.style.color = "rgb(246, 255, 147)"; // yellow
+                console.log("COLOR APPLIED: YELLOW (fallback)");
+            }
+
+
+            status.textContent = data.status;  
+            setTimeout(() => {
+                    status.textContent = "Click Scan To scan face";
+                    status.style.color = "rgb(255, 255, 255)"; // yellow
+                }, 3000);
+
+
+            // Draw detected face(s)
+            if (data.faces && data.faces.length > 0) {
+                ctx.strokeStyle = "lime";
+                ctx.lineWidth = 3;
+
+                data.faces.forEach(face => {
+                    const fx = canvas.width - face.x - face.w; // adjust for mirrored video
+                    ctx.strokeRect(fx, face.y, face.w, face.h);
+                });
+            }
+        } catch (err) {
+            status.textContent = "Error: " + err.message;
+            setTimeout(() => {
+                status.textContent = "Click Scan To scan face";
+            }, 3000);
+        }
+    });
+});
+</script>
+</body>
+</html>

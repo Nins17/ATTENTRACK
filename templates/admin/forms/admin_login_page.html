@@ -37,11 +37,13 @@
      
         <!-- partial -->
     
-            <div class="content-wrapper w-100" > 
-              
-              <div class="col-6 m-3 stretch-card mx-auto"> 
-                
-                <div class="card">
+            <div class="content-wrapper w-100 " style="min-height: 90vh;"> 
+              <a href="javascript:history.back()" class="me-3 ms-3">
+                  <i class="mdi mdi-arrow-left" style="font-size: 24px; color: black;"></i>
+              </a>
+              <div class="col-5 m-1 stretch-card mx-auto"> 
+                 
+                <div class="card rounded-5">
                   
                   <div class="card-body ">  
                    
@@ -60,17 +62,12 @@
                     <form action="/admin/login_admin" method="POST" class="forms-sample ">
                       <div class="form-group">
                         <label for="admin_id">Admin ID:</label>
-                        <input type="text" class="form-control inner-shadow" id="admin_id" name="admin_id" placeholder="Enter Admin ID" Required>
+                        <input type="text" class="form-control inner-shadow rounded-4" id="admin_id" name="admin_id" placeholder="Enter Admin ID" Required>
                       </div>
                      <div class="form-group position-relative">
                         <label for="admin_pass">Admin Password:</label>
-                        <input type="password" class="form-control inner-shadow" id="admin_pass" name="admin_pass" placeholder="Enter Password" Required>
-                         <i class="mdi mdi-eye-off position-absolute"
-                        id="toggleTeacherPass" 
-                        onclick="togglePassword('admin_pass', this)"
-                        style="top: 38px; right: 15px; cursor: pointer; color: #555;"></i>
-                      </div>
-                      <button type="submit" class="btn btn-gradient-dark me-2">Log In</button>
+                        <input type="password" class="form-control inner-shadow rounded-4" id="admin_pass" name="admin_pass" placeholder="Enter Password" Required><br>
+                      <button type="submit" class="btn btn-gradient-secondary2 rounded-5 me-2">Log In</button>
                     </form>
                   </div>
                 </div>
@@ -80,12 +77,7 @@
         </div>
             <!-- content-wrapper ends -->
             <!-- partial:../../partials/_footer.html -->
-            <footer class="footer">
-              <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2023 <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. All rights reserved.</span>
-                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="mdi mdi-heart text-danger"></i></span>
-              </div>
-            </footer>
+           
             <!-- partial -->
     
         <!-- main-panel ends -->

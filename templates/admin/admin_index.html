@@ -129,8 +129,8 @@
     </div>
     <div class="row">
       <!-- TAKE ATTENDANCE -->
-     <div class="col-md-4 stretch-card grid-margin">
-        <div class="card bg-gradient-primary card-img-holder text-white">
+     <div class="col-md-4 stretch-card grid-margin" style="max-height:220px;">
+        <div class="card bg-gradient-primary card-img-holder text-white" style="height:100%;">
           <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
           <a href="/admin/registerteacherform" class="stretched-link text-white text-decoration-none">
             <div class="card-body">
@@ -144,8 +144,8 @@
       </div>
 
       <!-- ENROLL STUDENT -->
-      <div class="col-md-4 stretch-card grid-margin ">
-        <div class="card bg-gradient-secondary2 card-img-holder text-white shadow">
+      <div class="col-md-4 stretch-card grid-margin " style="max-height:220px;">
+        <div class="card bg-gradient-secondary2 card-img-holder text-white shadow" style="height:100%;">
           <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
           <a href="{{url_for('admin.enrollStudentform')}}" class="stretched-link text-white text-decoration-none">
             <div class="card-body">
@@ -159,8 +159,8 @@
       </div>
 
       <!-- VIEW CLASS SCHEDULE -->
-      <div class="col-md-4 stretch-card grid-margin">
-        <div class="card bg-gradient-primary card-img-holder text-white">
+      <div class="col-md-4 stretch-card grid-margin" style="max-height:220px;">
+        <div class="card bg-gradient-primary card-img-holder text-white" style="height:100%;">
           <img src="../static/assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
           <a href="{{ url_for('admin.class_schedule_list')}}" class="stretched-link"></a>
           <div class="card-body">

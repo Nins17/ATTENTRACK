@@ -25,7 +25,7 @@ DEVICE_ID = os.environ.get("TEXTBEE_DEVICE_ID")# DEVICE_ID = '68e5fdabc2046740ce
 
 # print(AttendanceNotif.json())
 
-def send_attendance_sms(guardian_number, student_name, time_in):
+def send_attendance_sms(guardian_number, student_name, time_in,status_text):
     """Send SMS notification when student attendance is recorded."""
     if not guardian_number:
         print("No guardian number provided.")
@@ -36,7 +36,7 @@ def send_attendance_sms(guardian_number, student_name, time_in):
     # if guardian_number.startswith("0"):
     #     formatted_number = "+63" + guardian_number[1:]
 
-    message = f"{student_name} was marked present at {time_in}."
+    message = f"{student_name}  {status_text}  {time_in}."
 
     response = requests.post(
         f"{BASE_URL}/gateway/devices/{DEVICE_ID}/send-sms",
