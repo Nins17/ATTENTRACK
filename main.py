@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret_for_local")
 
 app.config['MYSQL_DATABASE_USER'] = os.environ.get("MYSQL_USER", "root")
-app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get("MYSQL_PASSWORD", "Rootpassword@l03e1t3")
+app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get("MYSQL_PASSWORD", "DNCMES@2025_noVember11")
 app.config['MYSQL_DATABASE_DB'] = os.environ.get("MYSQL_DB", "ams")
 app.config['MYSQL_DATABASE_HOST'] = os.environ.get("MYSQL_HOST", "localhost")
 
