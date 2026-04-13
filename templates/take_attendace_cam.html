@@ -124,19 +124,19 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawGuideBox() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const size = 300;
+        const size = 250;
         const x = (canvas.width - size) / 2;
         const y = (canvas.height - size) / 2;
 
         ctx.strokeStyle = "green";
-        ctx.lineWidth = 3;
+        ctx.lineWidth =3;
         ctx.strokeRect(x, y, size, size);
 
         requestAnimationFrame(drawGuideBox);
     }
     drawGuideBox();
 
-    // Capture frame and send to backend when button clicked
+    // Captures frame and send to backend when button clicked
     scanBtn.addEventListener("click", async () => {
         status.textContent = "Scanning...";
 
@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => {
                     status.textContent = "Click Scan To scan face";
                     status.style.color = "rgb(255, 255, 255)"; // yellow
-                }, 3000);
+                }, 5000);
 
 
             // Draw detected face(s)

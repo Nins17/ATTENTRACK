@@ -108,10 +108,10 @@ def login_admin():
 @admin.route('/enrollStudentform',methods=["POST", "GET"])
 def enrollStudentform():
     if session.get('admin_logged_in')==True:
-        
-        cursor, conn = get_db_cursor()
-        cursor.execute("SELECT DISTINCT grade_level FROM class_schedules")
-        avail_grade_level = [row[0] for row in cursor.fetchall()]
+        avail_grade_level = [f"Grade {i}" for i in range(1, 7)]
+        # cursor, conn = get_db_cursor()
+        # cursor.execute("SELECT DISTINCT grade_level FROM class_schedules")
+        # avail_grade_level = [row[0] for row in cursor.fetchall()]
  
         # cursor.execute('SELECT DISTINCT section FROM class_schedules WHERE teacher_id=%s',(session.get('teacher_id')))
         # avail_section = [row[0] for row in cursor.fetchall()]
@@ -239,7 +239,13 @@ def getSection_forEnroll():
     grade_level = request.form['current_gradelevel'] 
     cursor, conn = get_db_cursor()
     cursor.execute("SELECT DISTINCT section FROM class_schedules WHERE grade_level=%s", [grade_level])
-    sections = cursor.fetchall()
+    data = cursor.fetchall()
+    
+    if data:
+        sections = data
+        print(data)
+    else:
+        sections =(('Section A',),)
     return jsonify(sections)
  
 @admin.route('/registerteacherform',methods=["POST", "GET"])

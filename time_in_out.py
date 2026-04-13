@@ -86,7 +86,6 @@ def update_attendance(student_id, student_name):
         with open(csv_path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["Date","ID","Name","AM_IN","AM_OUT","PM_IN","PM_OUT","LAST_TIME_OUT"])
-          # for Windows backslash
         cursor.execute("""
                 INSERT INTO time_in_out_record_paths (record_id, csv_path, date)
                 VALUES (%s, %s, %s)
@@ -144,18 +143,24 @@ def update_attendance(student_id, student_name):
         else:
             found_entry[AM_OUT] = f"{time_now_str}(Missed Time Out)"
             found_entry[LAST_TIME_OUT] = time_now_str
-            status = f"Last time out AM{time_now_str}"
+            status = f"Last AM time out  {time_now_str}"
             statuscat="error"
 
     elif found_entry[PM_IN] == "":
         if pm_start <= time_now <= pm_end:
             found_entry[PM_IN] = time_now_str
-            status = "Success PM Time In"
+            status = "PM TIME IN SUCCESSFUL"
             statuscat="ok"
             
+        elif time_now > pm_end:
+            found_entry[PM_IN] = "absent"
+            found_entry[PM_OUT] = "absent"
+            status = "INVALID TIME IN FOR PM"
+            statuscat="error"
+        
         else:
-            found_entry[PM_IN] = f"{time_now_str} Late"
-            status = "PM Time In Late"
+            found_entry[PM_IN] = "{time_now_str}(Late)"
+            status = "PM TIME IN LATE!"
             statuscat="error"
 
     elif found_entry[PM_OUT] == "":
@@ -198,56 +203,134 @@ def process_frame():
         img_b64 = data["img"].split(",")[1]
         frame = cv2.imdecode(np.frombuffer(base64.b64decode(img_b64), np.uint8), cv2.IMREAD_COLOR)
 
-        # Process frame as usual
-        small_frame = cv2.resize(frame, (0,0), fx=0.25, fy=0.25)
+        # === IMPROVED PROCESSING ===
+        small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)   # higher resolution = better accuracy
         rgb_small = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
 
-        face_locations = face_recognition.face_locations(rgb_small)
+        # Use CNN for better detection (fallback to hog if too slow)
+        face_locations = face_recognition.face_locations(rgb_small, model="hog")  # or "hog"
         face_encodings = face_recognition.face_encodings(rgb_small, face_locations)
 
+        TOLERANCE = 0.45          # ← Tune this (0.4 - 0.5). Lower = stricter
         statusfinal = "No face detected...Scan Again"
+        statuscat = "error"
         faces_output = []
-        statuscat = "error" 
 
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.5)
-            name = "Unknown"
-            time_out_sms = False
-
-            if True in matches:
-                index = matches.index(True)
-                student_id = known_face_names[index]
-
-                cursor.execute("""
-                    SELECT student_id, student_first_name, student_middle_name,
-                           student_last_name, student_suffix, guardian_contact
-                    FROM student_info
-                    WHERE student_id=%s
-                """, (student_id,))
-                info = cursor.fetchone()
-                if info:
-                    student_name = f"{info[3]}, {info[1]} {info[2]} {info[4]}"
-                    statusfinal, time_out_sms,statuscat = update_attendance(student_id, student_name)
-                    name = student_name
-                    if info[5] and time_out_sms:
-                        send_attendance_sms(info[5], student_name, datetime.now().strftime("%H:%M:%S"))
+            # === BEST MATCH + DISTANCE  ===
+            if len(known_face_encodings) == 0:
+                name = "Unknown"
             else:
-                statusfinal = "Face not recognized"
-                statuscat = "error"
+                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                best_distance = face_distances[best_match_index]
 
-            scale = 4
+                if best_distance < TOLERANCE:
+                    student_id = known_face_names[best_match_index]
+                    cursor.execute("""
+                        SELECT student_id, student_first_name, student_middle_name,
+                               student_last_name, student_suffix, guardian_contact
+                        FROM student_info
+                        WHERE student_id=%s
+                    """, (student_id,))
+                    info = cursor.fetchone()
+
+                    if info:
+                        student_name = f"{info[3]}, {info[1]} {info[2]} {info[4]}"
+                        statusfinal, time_out_sms, statuscat = update_attendance(student_id, student_name)
+                        name = student_name
+
+                        if info[5] and time_out_sms:
+                            send_attendance_sms(info[5], student_name, datetime.now().strftime("%H:%M:%S"))
+                    else:
+                        name = "Unknown"
+                        statusfinal = "Face not recognized"
+                        statuscat = "error"
+                else:
+                    name = "Unknown"
+                    statusfinal = "Face not recognized"
+                    statuscat = "error"
+
+
+            # Scale coordinates back to original frame
+            scale = 2  
             faces_output.append({
-                "x": left*scale,
-                "y": top*scale,
-                "w": (right-left)*scale,
-                "h": (bottom-top)*scale,
+                "x": left * scale,
+                "y": top * scale,
+                "w": (right - left) * scale,
+                "h": (bottom - top) * scale,
                 "name": name
             })
 
-        return jsonify({"status": statusfinal, "faces": faces_output,"statuscat":statuscat})
+        return jsonify({
+            "status": statusfinal,
+            "faces": faces_output,
+            "statuscat": statuscat
+        })
+
     except Exception as e:
-        # Always return JSON even if something breaks
         print("Error in process_frame:", e)
-        return jsonify({"status": "Server error: "+str(e), "faces": [], "statuscat":"error"})
+        return jsonify({"status": "Server error: " + str(e), "faces": [], "statuscat": "error"})
+    
+    # try:
+    #     cursor, conn = get_db_cursor()
+    #     data = request.get_json()
+    #     if not data or "img" not in data:
+    #         return jsonify({"status": "No image sent", "faces": []})
+
+    #     img_b64 = data["img"].split(",")[1]
+    #     frame = cv2.imdecode(np.frombuffer(base64.b64decode(img_b64), np.uint8), cv2.IMREAD_COLOR)
+
+    #     # Process frame as usual
+    #     small_frame = cv2.resize(frame, (0,0), fx=0.25, fy=0.25)
+    #     rgb_small = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+
+    #     face_locations = face_recognition.face_locations(rgb_small)
+    #     face_encodings = face_recognition.face_encodings(rgb_small, face_locations)
+
+    #     statusfinal = "No face detected...Scan Again"
+    #     faces_output = []
+    #     statuscat = "error" 
+
+    #     for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+    #         matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.5)
+    #         name = "Unknown"
+    #         time_out_sms = False
+
+    #         if True in matches:
+    #             index = matches.index(True)
+    #             student_id = known_face_names[index]
+
+    #             cursor.execute("""
+    #                 SELECT student_id, student_first_name, student_middle_name,
+    #                        student_last_name, student_suffix, guardian_contact
+    #                 FROM student_info
+    #                 WHERE student_id=%s
+    #             """, (student_id,))
+    #             info = cursor.fetchone()
+    #             if info:
+    #                 student_name = f"{info[3]}, {info[1]} {info[2]} {info[4]}"
+    #                 statusfinal, time_out_sms,statuscat = update_attendance(student_id, student_name)
+    #                 name = student_name
+    #                 if info[5] and time_out_sms:
+    #                     send_attendance_sms(info[5], student_name, datetime.now().strftime("%H:%M:%S"))
+    #         else:
+    #             statusfinal = "Face not recognized"
+    #             statuscat = "error"
+
+    #         scale = 4
+    #         faces_output.append({
+    #             "x": left*scale,
+    #             "y": top*scale,
+    #             "w": (right-left)*scale,
+    #             "h": (bottom-top)*scale,
+    #             "name": name
+    #         })
+
+    #     return jsonify({"status": statusfinal, "faces": faces_output,"statuscat":statuscat})
+    # except Exception as e:
+    #     # Always return JSON even if something breaks
+    #     print("Error in process_frame:", e)
+    #     return jsonify({"status": "Server error: "+str(e), "faces": [], "statuscat":"error"})
 
    

@@ -171,17 +171,24 @@
                                     <!-- Show captured photo instead of file input -->
                                     <div class="d-flex align-items-center" style="width: 100%;">
                                     <!-- Read-only filename display -->
-                                    <input type="text"
+                                    <!--<input type="text"
                                           class="form-control me-2"
                                           value="{{ url_for('static', filename='teacher_photos/' ~ photo) }}"
                                           readonly
-                                          style="font-size: clamp(10px, 2vw, 12px); background-color: #f8f9fa;">
+                                          style="font-size: clamp(10px, 2vw, 12px); background-color: #f8f9fa;">-->
 
+                                     <!-- <div>
+                                          <img id="photoPreview" 
+                                              src="data:image/jpeg;base64,{{ photo }}" 
+                                              alt="Captured Student Photo"
+                                              class="img-thumbnail shadow-sm"
+                                              style="width: 160px; height: 160px; object-fit: cover; border: 3px solid #fff;">
+                                      </div> -->
                                     <input type="hidden" name="captured_photo" value="{{ photo }}">
 
                                     <!-- Retake Photo Button -->
                                     <button type="button" class="btn btn-gradient-warning btn-sm"
-                                        onclick="window.location.href='/admin/camera'">
+                                        onclick="window.location.href='/admin/teacher/camera'">
                                         <i class="mdi mdi-camera"></i> Retake Photo
                                     </button>
                                 </div>
